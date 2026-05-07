@@ -11,20 +11,24 @@ import com.kabo.a24_makany.R
 // Set of Material typography styles to start with
 
 val AppTypography = Typography(
+    titleLarge = TextStyle(
+        fontFamily = FontFamily(Font(R.font.o_bold)),
+        fontSize = 22.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = FontFamily(Font(R.font.o_semibold)),
+        fontSize = 14.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = FontFamily(Font(R.font.o_regular)),
         fontSize = 16.sp
     ),
-    bodyMedium = TextStyle(
+    bodySmall = TextStyle(
         fontFamily = FontFamily(Font(R.font.o_light)),
-        fontSize = 16.sp
+        fontSize = 12.sp
     ),
-    titleLarge = TextStyle(
-        fontFamily = FontFamily(Font(R.font.o_bold)),
-        fontSize = 20.sp
-    ),
-    titleSmall = TextStyle(
-        fontFamily = FontFamily(Font(R.font.o_semibold)),
-        fontSize = 20.sp
+    labelSmall = TextStyle(
+        fontFamily = FontFamily(Font(R.font.o_regular)),
+        fontSize = 11.sp
     )
 )
