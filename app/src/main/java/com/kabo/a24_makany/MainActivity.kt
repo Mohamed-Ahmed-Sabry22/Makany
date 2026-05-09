@@ -42,14 +42,22 @@ class MainActivity : ComponentActivity() {
 
                 ) {
                 val navController = rememberNavController()
-                val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+                val currentDestination =
+                    navController.currentBackStackEntryAsState().value?.destination?.route
+                val showBottomBar = currentDestination != "login" && currentDestination != "signup"
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        BottomNavigationBar(currentDestination, navController)
+                        if (showBottomBar) {
+                            BottomNavigationBar(currentDestination, navController)
+                        }
                     }
                 ) { innerPadding ->
-                    NavGraph(navController = navController , modifier = Modifier.padding(innerPadding))
+                    NavGraph(
+                        navController = navController,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
@@ -64,10 +72,14 @@ private fun BottomNavigationBar(
     NavigationBar(
         containerColor = Surface,
     ) {
-        BottomNavigationBarItem("home","Map",currentDestination, navController ,
-            if (currentDestination == "home") Icons.Filled.Map else Icons.Outlined.Map)
-        BottomNavigationBarItem("places","Places",currentDestination, navController ,
-            if (currentDestination == "places") Icons.AutoMirrored.Filled.FormatListBulleted else Icons.AutoMirrored.Outlined.FormatListBulleted,)
+        BottomNavigationBarItem(
+            "home", "Map", currentDestination, navController,
+            if (currentDestination == "home") Icons.Filled.Map else Icons.Outlined.Map
+        )
+        BottomNavigationBarItem(
+            "places", "Places", currentDestination, navController,
+            if (currentDestination == "places") Icons.AutoMirrored.Filled.FormatListBulleted else Icons.AutoMirrored.Outlined.FormatListBulleted,
+        )
 
     }
 }
@@ -82,13 +94,15 @@ private fun RowScope.BottomNavigationBarItem(
 ) {
     NavigationBarItem(
         selected = currentDestination == route,
-        onClick = { navController.navigate(route){
-            launchSingleTop = true
-            restoreState = true
-            popUpTo(navController.graph.startDestinationId) {
-                saveState = true
+        onClick = {
+            navController.navigate(route) {
+                launchSingleTop = true
+                restoreState = true
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
             }
-        } },
+        },
         icon = {
             Icon(
                 imageVector = icon,
