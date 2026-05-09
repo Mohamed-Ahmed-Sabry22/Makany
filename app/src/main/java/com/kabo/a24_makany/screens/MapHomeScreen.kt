@@ -45,7 +45,6 @@ fun MapHomeScreen() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         MakanyMap(modifier = Modifier.fillMaxSize())
-
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
