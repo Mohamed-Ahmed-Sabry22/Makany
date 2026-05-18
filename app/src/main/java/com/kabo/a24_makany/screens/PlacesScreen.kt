@@ -1,5 +1,6 @@
 package com.kabo.a24_makany.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,22 +8,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Directions
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.ShareLocation
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.rounded.BookmarkBorder
+import androidx.compose.material.icons.rounded.Directions
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -35,26 +47,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.kabo.a24_makany.R
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlacesScreen() {
     var searchQuery by remember { mutableStateOf("") }
+    var showPlaceDetailesSheet by remember { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                ,
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             placeholder = { Text("Search saved places...") },
             leadingIcon = {
                 Icon(
@@ -72,12 +88,110 @@ fun PlacesScreen() {
             singleLine = true
         )
         LazyColumn() {
-            items(10){
-                PlaceCard("ElSoban Cafe" , "floor four second home" , 4.9 ,{})
+            items(10) {
+                PlaceCard("ElSoban Cafe", "floor four second home", 4.9, {
+                    showPlaceDetailesSheet = true
+                })
             }
         }
     }
+    if (showPlaceDetailesSheet) {
+        showPlaceDetailesSheet = PlaceDetailesSheet(
+            showPlaceDetailesSheet,
+            onGoClick = { /* هنا بعدين */ },
+            onShareClick = { /* هنا بعدين */ })
+    }
+}
 
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun PlaceDetailesSheet(
+    showPlaceDetailesSheet: Boolean,
+    onGoClick: () -> Unit,
+    onShareClick: () -> Unit
+): Boolean {
+    var showPlaceDetailesSheet1 = showPlaceDetailesSheet
+    ModalBottomSheet(
+        onDismissRequest = {
+            showPlaceDetailesSheet1 = false
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+
+            Text(
+                "12 Elshopan - sohag",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clip(Shape.medium)
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.k),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp)
+            ) {
+                ElevatedButton(
+                    onClick = onGoClick,
+                    shape = Shape.medium,
+                    colors = ButtonDefaults.elevatedButtonColors(Primary),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Directions,
+                            contentDescription = null,
+                            Modifier.size(16.dp),
+                            tint = Surface
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "Go",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = Surface
+                        )
+                    }
+
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(Shape.medium)
+                        .background(Surface)
+                        .clickable { onShareClick },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ShareLocation,
+                        contentDescription = null,
+                        tint = Primary
+                    )
+                }
+            }
+        }
+    }
+    return showPlaceDetailesSheet1
 }
 
 @Composable
@@ -91,7 +205,7 @@ private fun PlaceCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable {onClick()},
+            .clickable { onClick() },
         shape = Shape.medium,
         colors = CardDefaults.cardColors(containerColor = Surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
