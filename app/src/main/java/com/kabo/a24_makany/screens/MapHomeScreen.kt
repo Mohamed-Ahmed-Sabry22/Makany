@@ -1,6 +1,8 @@
 package com.kabo.a24_makany.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,31 +47,39 @@ fun MapHomeScreen() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         MakanyMap(modifier = Modifier.fillMaxSize())
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .align(Alignment.TopCenter),
-            placeholder = { Text("Search saved places...") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = null
-                )
-            },
-            shape = RoundedCornerShape(50.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Surface,
-                focusedContainerColor = Surface,
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Primary
-            ),
-            singleLine = true
-        )
+        HomeSearchBar(searchQuery)
     }
 }
+
+@Composable
+private fun BoxScope.HomeSearchBar(searchQuery: String) {
+    var searchQuery1 = searchQuery
+    OutlinedTextField(
+        value = searchQuery1,
+        onValueChange = { searchQuery1 = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .align(Alignment.TopCenter),
+        placeholder = { Text("Search saved places...") },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Search,
+                contentDescription = null
+            )
+        },
+        shape = RoundedCornerShape(50.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = Surface,
+            focusedContainerColor = Surface,
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = Primary
+        ),
+        singleLine = true
+    )
+}
+
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun MakanyMap(modifier: Modifier = Modifier) {
     val cairo = LatLng(30.0444, 31.2357)
