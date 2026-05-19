@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +49,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kabo.a24_makany.R
+import com.kabo.a24_makany.ui.components.MakanySearchBar
+import com.kabo.a24_makany.ui.screens.sheets.PlaceDetailesSheet
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
@@ -56,32 +59,14 @@ import com.kabo.a24_makany.ui.theme.Surface
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlacesScreen() {
-    var searchQuery by remember { mutableStateOf("") }
-    var showPlaceDetailesSheet by remember { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var showPlaceDetailesSheet by rememberSaveable { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            placeholder = { Text("Search saved places...") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = null
-                )
-            },
-            shape = RoundedCornerShape(50.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Surface,
-                focusedContainerColor = Surface,
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Primary
-            ),
-            singleLine = true
+        MakanySearchBar(
+            searchQuery = searchQuery,
+            onQueryChanges = { searchQuery = it }
         )
         LazyColumn() {
             items(10) {
@@ -92,103 +77,14 @@ fun PlacesScreen() {
         }
     }
     if (showPlaceDetailesSheet) {
-        showPlaceDetailesSheet = PlaceDetailesSheet(
-            showPlaceDetailesSheet,
+        PlaceDetailesSheet(
             onGoClick = { /* هنا بعدين */ },
-            onShareClick = { /* هنا بعدين */ })
+            onShareClick = { /* هنا بعدين */ },
+            onDismiss = {showPlaceDetailesSheet = false}
+        )
     }
 }
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun PlaceDetailesSheet(
-    showPlaceDetailesSheet: Boolean,
-    onGoClick: () -> Unit,
-    onShareClick: () -> Unit
-): Boolean {
-    var showPlaceDetailesSheet1 = showPlaceDetailesSheet
-    ModalBottomSheet(
-        onDismissRequest = {
-            showPlaceDetailesSheet1 = false
-        }
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-        ) {
-
-            Text(
-                "12 Elshopan - sohag",
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(Shape.medium)
-                    .background(Color.LightGray),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.k),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            ) {
-                ElevatedButton(
-                    onClick = onGoClick,
-                    shape = Shape.medium,
-                    colors = ButtonDefaults.elevatedButtonColors(Primary),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Directions,
-                            contentDescription = null,
-                            Modifier.size(16.dp),
-                            tint = Surface
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            "Go",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = Surface
-                        )
-                    }
-
-                }
-                Spacer(modifier = Modifier.width(6.dp))
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(Shape.medium)
-                        .background(Surface)
-                        .clickable { onShareClick },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ShareLocation,
-                        contentDescription = null,
-                        tint = Primary
-                    )
-                }
-            }
-        }
-    }
-    return showPlaceDetailesSheet1
-}
 
 @Composable
 private fun PlaceCard(

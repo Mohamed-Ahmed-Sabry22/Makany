@@ -72,6 +72,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.kabo.a24_makany.ui.navigation.NavGraph
+import com.kabo.a24_makany.ui.screens.sheets.AddPlaceSheet
 import com.kabo.a24_makany.ui.theme.Accent
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
@@ -93,8 +94,9 @@ class MainActivity : ComponentActivity() {
                 val showBottomBar = currentDestination != "login" && currentDestination != "signup"
                 val showTopBar = currentDestination == "places"
                 val showFAB = currentDestination == "home"
-                var showAddPlaceSheet by remember { mutableStateOf(false) }
 
+                //for add place sheet
+                var showAddPlaceSheet by remember { mutableStateOf(false) }
                 var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
                 val imagePicker = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.GetContent()
@@ -122,223 +124,20 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     )
                     if (showAddPlaceSheet) {
-                        showAddPlaceSheet = AddPlaceSheet(
-                            showAddPlaceSheet,
+                        AddPlaceSheet(
                             imagePicker,
                             selectedImageUri,
                             placeName,
                             categories,
                             selectedCategory,
-                            placeNotes
+                            placeNotes,
+                            onDismiss = {showAddPlaceSheet = false}
                         )
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun AddPlaceSheet(
-    showAddPlaceSheet: Boolean,
-    imagePicker: ManagedActivityResultLauncher<String, Uri?>,
-    selectedImageUri: Uri?,
-    placeName: String,
-    categories: List<String>,
-    selectedCategory: String,
-    placeNotes: String
-): Boolean {
-    var showAddPlaceSheet1 = showAddPlaceSheet
-    var placeName1 = placeName
-    var selectedCategory1 = selectedCategory
-    var placeNotes1 = placeNotes
-    ModalBottomSheet(
-        onDismissRequest = { showAddPlaceSheet1 = false }
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-
-        ) {
-            Text(
-                "Add Place",
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(Shape.medium)
-                    .background(Color.LightGray)
-                    .clickable { imagePicker.launch("image/*") },
-                contentAlignment = Alignment.Center
-            ) {
-                if (selectedImageUri != null) {
-                    AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.AddAPhoto,
-                            contentDescription = null
-                        )
-                        Text(
-                            "Add Place",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-            }
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                value = placeName1,
-                onValueChange = { placeName1 = it },
-                label = {
-                    Text(
-                        "Place Name",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                placeholder = {
-                    Text(
-                        "e.g.Home, Work, Favorite Cafe",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF7C7C7C)
-                    )
-                },
-                shape = Shape.small
-            )
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(vertical = 6.dp)
-            ) {
-                items(categories) { category ->
-                    FilterChip(
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = selectedCategory1 == category,
-                            borderColor = Color.Transparent,
-                            selectedBorderColor = Color.Transparent
-                        ),
-                        selected = selectedCategory1 == category,
-                        onClick = { selectedCategory1 = category },
-                        label = {
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = when (category) {
-                                        "Home" -> Icons.Outlined.Home
-                                        "Work" -> Icons.Outlined.WorkOutline
-                                        "Food" -> Icons.Outlined.Restaurant
-                                        "Cafe" -> Icons.Outlined.LocalCafe
-                                        else -> Icons.Outlined.Park
-                                    },
-                                    contentDescription = null,
-                                    Modifier.size(16.dp),
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    category,
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Primary,
-                            selectedLabelColor = Color.White,
-                            containerColor = Surface,
-                            labelColor = Color.Gray
-                        )
-                    )
-                }
-            }
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                value = placeNotes1,
-                onValueChange = { placeNotes1 = it },
-                minLines = 5,
-                label = {
-                    Text(
-                        "Notes",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                placeholder = {
-                    Text(
-                        "Add some notes about this place...",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF7C7C7C)
-                    )
-                },
-                shape = Shape.small
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .clip(Shape.small)
-                    .background(Color(0xFFE5E5E5))
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Map,
-                        contentDescription = null,
-                        Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("12 Elshopan - sohag")
-                }
-            }
-            ElevatedButton(
-                onClick = {},
-                shape = Shape.medium,
-                colors = ButtonDefaults.elevatedButtonColors(Primary),
-                modifier = Modifier.padding(vertical = 12.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.BookmarkBorder,
-                        contentDescription = null,
-                        Modifier.size(16.dp),
-                        tint = Surface
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        "Save Place",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = Surface
-                    )
-                }
-            }
-        }
-
-    }
-    return showAddPlaceSheet1
 }
 
 @Composable

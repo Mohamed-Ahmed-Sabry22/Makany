@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,46 +33,24 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.kabo.a24_makany.ui.components.MakanySearchBar
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Surface
 
 @Composable
 fun MapHomeScreen() {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize()) {
         MakanyMap(modifier = Modifier.fillMaxSize())
-        HomeSearchBar(searchQuery)
+        MakanySearchBar(
+            searchQuery = searchQuery,
+            onQueryChanges = {searchQuery= it}
+        )
     }
 }
 
-@Composable
-private fun BoxScope.HomeSearchBar(searchQuery: String) {
-    var searchQuery1 = searchQuery
-    OutlinedTextField(
-        value = searchQuery1,
-        onValueChange = { searchQuery1 = it },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .align(Alignment.TopCenter),
-        placeholder = { Text("Search saved places...") },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Outlined.Search,
-                contentDescription = null
-            )
-        },
-        shape = RoundedCornerShape(50.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = Surface,
-            focusedContainerColor = Surface,
-            unfocusedBorderColor = Color.Transparent,
-            focusedBorderColor = Primary
-        ),
-        singleLine = true
-    )
-}
+
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
