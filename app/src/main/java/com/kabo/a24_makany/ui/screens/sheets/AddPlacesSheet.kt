@@ -44,6 +44,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.google.common.math.LinearTransformation.vertical
+import com.kabo.a24_makany.ui.components.SheetTextField
+import com.kabo.a24_makany.ui.components.SheetsButton
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
@@ -58,11 +61,11 @@ fun AddPlaceSheet(
     categories: List<String>,
     selectedCategory: String,
     placeNotes: String,
-    onDismiss: ()->Unit
+    onDismiss: ()->Unit,
+    onPlaceNameChange : (String) -> Unit,
+    onNoteChange : (String) -> Unit,
+    onCategorySelect : (String) -> Unit,
 ){
-    var placeName1 = placeName
-    var selectedCategory1 = selectedCategory
-    var placeNotes1 = placeNotes
     ModalBottomSheet(
         onDismissRequest = onDismiss
     ) {
@@ -106,26 +109,11 @@ fun AddPlaceSheet(
                     }
                 }
             }
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                value = placeName1,
-                onValueChange = { placeName1 = it },
-                label = {
-                    Text(
-                        "Place Name",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                placeholder = {
-                    Text(
-                        "e.g.Home, Work, Favorite Cafe",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF7C7C7C)
-                    )
-                },
-                shape = Shape.small
+            SheetTextField(
+                value = placeName,
+                onValueChange = onPlaceNameChange,
+                labelText = "Place Name",
+                placeHolderText = "e.g.Home, Work, Favorite Cafe"
             )
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -135,12 +123,12 @@ fun AddPlaceSheet(
                     FilterChip(
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = selectedCategory1 == category,
+                            selected = selectedCategory == category,
                             borderColor = Color.Transparent,
                             selectedBorderColor = Color.Transparent
                         ),
-                        selected = selectedCategory1 == category,
-                        onClick = { selectedCategory1 = category },
+                        selected = selectedCategory == category,
+                        onClick = { onCategorySelect(category) },
                         label = {
                             Row(
                                 horizontalArrangement = Arrangement.Center,
@@ -176,27 +164,12 @@ fun AddPlaceSheet(
                     )
                 }
             }
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                value = placeNotes1,
-                onValueChange = { placeNotes1 = it },
-                minLines = 5,
-                label = {
-                    Text(
-                        "Notes",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                placeholder = {
-                    Text(
-                        "Add some notes about this place...",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF7C7C7C)
-                    )
-                },
-                shape = Shape.small
+            SheetTextField(
+                value = placeNotes,
+                onValueChange = onNoteChange,
+                lines = 5,
+                labelText = "Notes",
+                placeHolderText = "Add some notes about this place..."
             )
             Box(
                 modifier = Modifier
@@ -218,33 +191,17 @@ fun AddPlaceSheet(
                     Text("12 Elshopan - sohag")
                 }
             }
-            ElevatedButton(
-                onClick = {},
-                shape = Shape.medium,
-                colors = ButtonDefaults.elevatedButtonColors(Primary),
-                modifier = Modifier.padding(vertical = 12.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.BookmarkBorder,
-                        contentDescription = null,
-                        Modifier.size(16.dp),
-                        tint = Surface
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        "Save Place",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = Surface
-                    )
+            Row(
+                modifier = Modifier.padding(vertical = 12.dp),
+            ) {SheetsButton(
+                "Save Place",
+                Icons.Rounded.BookmarkBorder,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    //الي هيحصل لما ادوس save place
                 }
-            }
+            ) }
+
         }
 
     }

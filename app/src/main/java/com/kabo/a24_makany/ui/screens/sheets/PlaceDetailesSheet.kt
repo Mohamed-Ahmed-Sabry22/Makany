@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kabo.a24_makany.R
+import com.kabo.a24_makany.ui.components.SheetsButton
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
@@ -76,35 +77,14 @@ fun PlaceDetailesSheet(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
+                    .padding(vertical = 12.dp),
             ) {
-                ElevatedButton(
-                    onClick = onGoClick,
-                    shape = Shape.medium,
-                    colors = ButtonDefaults.elevatedButtonColors(Primary),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Directions,
-                            contentDescription = null,
-                            Modifier.size(16.dp),
-                            tint = Surface
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            "Go",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = Surface
-                        )
-                    }
-
-                }
+                SheetsButton(
+                    "Go",
+                    Icons.Outlined.Directions,
+                    modifier = Modifier.weight(1f),
+                    onClick = onGoClick
+                )
                 Spacer(modifier = Modifier.width(6.dp))
                 Box(
                     modifier = Modifier

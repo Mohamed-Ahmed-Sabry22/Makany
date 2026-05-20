@@ -50,6 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.kabo.a24_makany.R
 import com.kabo.a24_makany.ui.components.MakanySearchBar
+import com.kabo.a24_makany.ui.components.PlaceCard
 import com.kabo.a24_makany.ui.screens.sheets.PlaceDetailesSheet
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
@@ -85,82 +86,3 @@ fun PlacesScreen() {
     }
 }
 
-
-@Composable
-private fun PlaceCard(
-    name: String,
-    address: String,
-    rating: Double,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onClick() },
-        shape = Shape.medium,
-        colors = CardDefaults.cardColors(containerColor = Surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // الصورة
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(Shape.medium)
-                    .background(Primary)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Place,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-            // النص
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Text(
-                    text = address,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Outlined.Star,
-                        contentDescription = null,
-                        tint = Color(0xFFFFB300),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = " $rating",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-            // السهم
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Secondary),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = null,
-                    tint = Primary
-                )
-            }
-        }
-    }
-}

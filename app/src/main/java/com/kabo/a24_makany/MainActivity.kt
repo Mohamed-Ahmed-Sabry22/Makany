@@ -125,13 +125,16 @@ class MainActivity : ComponentActivity() {
                     )
                     if (showAddPlaceSheet) {
                         AddPlaceSheet(
-                            imagePicker,
-                            selectedImageUri,
-                            placeName,
-                            categories,
-                            selectedCategory,
-                            placeNotes,
-                            onDismiss = {showAddPlaceSheet = false}
+                            imagePicker = imagePicker,
+                            selectedImageUri = selectedImageUri,
+                            placeName = placeName,
+                            categories = categories,
+                            selectedCategory = selectedCategory,
+                            placeNotes = placeNotes,
+                            onDismiss = {showAddPlaceSheet = false},
+                            onCategorySelect = {selectedCategory = it},
+                            onNoteChange = {placeNotes = it},
+                            onPlaceNameChange = {placeName = it}
                         )
                     }
                 }
