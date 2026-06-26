@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -49,6 +50,7 @@ import com.kabo.a24_makany.ui.navigation.NavGraph
 import com.kabo.a24_makany.ui.screens.sheets.AddPlaceSheet
 import com.kabo.a24_makany.ui.theme.Accent
 import com.kabo.a24_makany.ui.theme.Primary
+import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
 import com.kabo.a24_makany.ui.theme._24_MakanyTheme
@@ -88,7 +90,7 @@ class MainActivity : ComponentActivity() {
                     )
                     if (showAddPlaceSheet) {
                         AddPlaceSheet(
-                            onDismiss = {showAddPlaceSheet = false},
+                            onDismiss = { showAddPlaceSheet = false },
                         )
                     }
                 }
@@ -103,14 +105,26 @@ private fun FAB(onClick: () -> Unit) {
         onClick = {
             onClick()
         },
-        containerColor = Accent,
+        containerColor = Secondary,
         shape = Shape.large
     ) {
-        Icon(
-            imageVector = Icons.Outlined.Place,
-            contentDescription = null,
-            tint = Color.White,
-        )
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 6.dp)
+        ) {
+            Text(
+                "Save Place",
+                style = MaterialTheme.typography.titleSmall,
+                color =Primary
+            )
+            Icon(
+                imageVector = Icons.Outlined.Place,
+                contentDescription = null,
+                tint = Primary,
+            )
+        }
+
     }
 }
 

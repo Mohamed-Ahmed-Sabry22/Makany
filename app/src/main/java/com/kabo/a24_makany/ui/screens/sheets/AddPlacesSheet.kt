@@ -1,6 +1,7 @@
 package com.kabo.a24_makany.ui.screens.sheets
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kabo.a24_makany.ui.components.SheetTextField
@@ -58,7 +60,6 @@ import com.kabo.a24_makany.ui.theme.Surface
 @OptIn(ExperimentalMaterial3Api::class)
 fun AddPlaceSheet(
     onDismiss: ()->Unit,
-    //onCategorySelect : (String) -> Unit,
 ){
 
     val categories = listOf("Home" , "Work" , "Food" , "Cafe" , "Park")
@@ -192,10 +193,11 @@ fun AddPlaceSheet(
                         contentDescription = null,
                         Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("12 Elshopan - sohag")
+                    //Spacer(modifier = Modifier.width(6.dp))
+                    //Text("12 Elshopan - sohag")
                 }
             }
+            val context = LocalContext.current
             Row(
                 modifier = Modifier.padding(vertical = 12.dp),
             ) {SheetsButton(
@@ -203,6 +205,7 @@ fun AddPlaceSheet(
                 Icons.Rounded.BookmarkBorder,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
+                    Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
                     //الي هيحصل لما ادوس save place
                 }
             ) }
