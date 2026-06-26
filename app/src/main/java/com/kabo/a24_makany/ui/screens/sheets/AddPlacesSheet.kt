@@ -2,6 +2,8 @@ package com.kabo.a24_makany.ui.screens.sheets
 
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,17 +28,18 @@ import androidx.compose.material.icons.outlined.Park
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.google.common.math.LinearTransformation.vertical
 import com.kabo.a24_makany.ui.components.SheetTextField
 import com.kabo.a24_makany.ui.components.SheetsButton
 import com.kabo.a24_makany.ui.theme.Primary
@@ -55,17 +57,20 @@ import com.kabo.a24_makany.ui.theme.Surface
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AddPlaceSheet(
-    imagePicker: ManagedActivityResultLauncher<String, Uri?>,
-    selectedImageUri: Uri?,
-    placeName: String,
-    categories: List<String>,
-    selectedCategory: String,
-    placeNotes: String,
     onDismiss: ()->Unit,
-    onPlaceNameChange : (String) -> Unit,
-    onNoteChange : (String) -> Unit,
-    onCategorySelect : (String) -> Unit,
+    //onCategorySelect : (String) -> Unit,
 ){
+
+    val categories = listOf("Home" , "Work" , "Food" , "Cafe" , "Park")
+    var placeName by remember { mutableStateOf("") }
+    var placeNotes by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("Home") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        selectedImageUri = uri
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss
     ) {
@@ -111,7 +116,7 @@ fun AddPlaceSheet(
             }
             SheetTextField(
                 value = placeName,
-                onValueChange = onPlaceNameChange,
+                onValueChange = {placeName = it},
                 labelText = "Place Name",
                 placeHolderText = "e.g.Home, Work, Favorite Cafe"
             )
@@ -128,7 +133,7 @@ fun AddPlaceSheet(
                             selectedBorderColor = Color.Transparent
                         ),
                         selected = selectedCategory == category,
-                        onClick = { onCategorySelect(category) },
+                        onClick = {selectedCategory = category } ,
                         label = {
                             Row(
                                 horizontalArrangement = Arrangement.Center,
@@ -166,7 +171,7 @@ fun AddPlaceSheet(
             }
             SheetTextField(
                 value = placeNotes,
-                onValueChange = onNoteChange,
+                onValueChange = {placeNotes = it},
                 lines = 5,
                 labelText = "Notes",
                 placeHolderText = "Add some notes about this place..."

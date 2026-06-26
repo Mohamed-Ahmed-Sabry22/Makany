@@ -3,54 +3,31 @@ package com.kabo.a24_makany
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.outlined.AddAPhoto
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LocalCafe
 import androidx.compose.material.icons.outlined.Map
-import androidx.compose.material.icons.outlined.Park
 import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material.icons.outlined.Restaurant
-import androidx.compose.material.icons.outlined.WorkOutline
-import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -61,16 +38,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil3.compose.AsyncImage
 import com.kabo.a24_makany.ui.navigation.NavGraph
 import com.kabo.a24_makany.ui.screens.sheets.AddPlaceSheet
 import com.kabo.a24_makany.ui.theme.Accent
@@ -95,18 +69,7 @@ class MainActivity : ComponentActivity() {
                 val showTopBar = currentDestination == "places"
                 val showFAB = currentDestination == "home"
 
-                //for add place sheet
                 var showAddPlaceSheet by remember { mutableStateOf(false) }
-                var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-                val imagePicker = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.GetContent()
-                ) { uri ->
-                    selectedImageUri = uri
-                }
-                var placeName by remember { mutableStateOf("") }
-                var placeNotes by remember { mutableStateOf("") }
-                val categories = listOf("Home" , "Work" , "Food" , "Cafe" , "Park")
-                var selectedCategory by remember { mutableStateOf("Home") }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -125,16 +88,7 @@ class MainActivity : ComponentActivity() {
                     )
                     if (showAddPlaceSheet) {
                         AddPlaceSheet(
-                            imagePicker = imagePicker,
-                            selectedImageUri = selectedImageUri,
-                            placeName = placeName,
-                            categories = categories,
-                            selectedCategory = selectedCategory,
-                            placeNotes = placeNotes,
                             onDismiss = {showAddPlaceSheet = false},
-                            onCategorySelect = {selectedCategory = it},
-                            onNoteChange = {placeNotes = it},
-                            onPlaceNameChange = {placeName = it}
                         )
                     }
                 }
