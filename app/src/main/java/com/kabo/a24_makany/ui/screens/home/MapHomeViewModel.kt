@@ -1,0 +1,29 @@
+package com.kabo.a24_makany.ui.screens.home
+
+import android.Manifest
+import android.app.Application
+import androidx.annotation.RequiresPermission
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
+import com.kabo.a24_makany.location.LocationHandler
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class MapHomeViewModel(application : Application) : AndroidViewModel(application) {
+
+    private val locationHandler = LocationHandler(getApplication())
+
+    private val _userLocation = MutableStateFlow<LatLng?>(null)
+    val userLocation = _userLocation.asStateFlow()
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    fun fetchCurrentLocation() {
+        viewModelScope.launch {
+            _userLocation.value =
+                locationHandler.fetchCurrentLocation()
+        }
+    }
+}

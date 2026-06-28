@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -60,18 +62,11 @@ fun MapHomeScreen() {
 
     }
 
-    var userLocation by remember { mutableStateOf<LatLng?>(null) }
-    val fusedLocationClient =
-        remember { LocationServices.getFusedLocationProviderClient(context) }
-    //اول ما يعرف البرميشن تمام
+    val vm : MapHomeViewModel = viewModel()
+
+    val userLocation by vm.userLocation.collectAsState()
     LaunchedEffect(hasLocationPermission) {
-        if (!hasLocationPermission) return@LaunchedEffect
-        val location =
-            fusedLocationClient
-                .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                .await()
-        userLocation = LatLng(location.latitude, location.longitude)
-        Toast.makeText(context, "location done $userLocation", Toast.LENGTH_SHORT).show()
+        if (hasLocationPermission) vm.fetchCurrentLocation()
     }
 
 
