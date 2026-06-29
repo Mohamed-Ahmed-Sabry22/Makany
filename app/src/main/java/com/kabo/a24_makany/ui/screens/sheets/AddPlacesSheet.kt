@@ -59,6 +59,8 @@ import com.kabo.a24_makany.ui.theme.Surface
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AddPlaceSheet(
+    latitude: Double?,
+    longitude: Double?,
     onDismiss: ()->Unit,
 ){
 
@@ -177,6 +179,11 @@ fun AddPlaceSheet(
                 labelText = "Notes",
                 placeHolderText = "Add some notes about this place..."
             )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                "Current Address",
+                style = MaterialTheme.typography.titleSmall,
+            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,8 +200,9 @@ fun AddPlaceSheet(
                         contentDescription = null,
                         Modifier.size(18.dp)
                     )
-                    //Spacer(modifier = Modifier.width(6.dp))
-                    //Text("12 Elshopan - sohag")
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(text = "$latitude , $longitude"
+                    )
                 }
             }
             val context = LocalContext.current

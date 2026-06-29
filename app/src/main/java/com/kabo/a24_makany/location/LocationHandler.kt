@@ -1,6 +1,7 @@
 package com.kabo.a24_makany.location
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority

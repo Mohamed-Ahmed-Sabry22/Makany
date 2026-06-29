@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.maps.model.LatLng
 import com.kabo.a24_makany.ui.navigation.NavGraph
 import com.kabo.a24_makany.ui.screens.sheets.AddPlaceSheet
 import com.kabo.a24_makany.ui.theme.Accent
@@ -71,7 +72,15 @@ class MainActivity : ComponentActivity() {
                 val showTopBar = currentDestination == "places"
                 val showFAB = currentDestination == "home"
 
-                var showAddPlaceSheet by remember { mutableStateOf(false) }
+                var showAddPlaceSheet by remember {
+                    mutableStateOf(false)
+                }
+                var selectedLocation by remember {
+                    mutableStateOf<LatLng?>(null)
+                }
+                var savePlaceRequested by remember {
+                    mutableStateOf(false)
+                }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -81,15 +90,28 @@ class MainActivity : ComponentActivity() {
                         if (showBottomBar) BottomNavigationBar(currentDestination, navController)
                     },
                     floatingActionButton = {
-                        if (showFAB) FAB(onClick = { showAddPlaceSheet = true })
+                        if (showFAB) FAB(onClick = {
+
+                            savePlaceRequested = true
+                            //showAddPlaceSheet = true
+                        })
                     }
                 ) { innerPadding ->
                     NavGraph(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        savePlaceRequested = savePlaceRequested,
+                        onReadyToOpenSheet = {
+                            location ->
+                            selectedLocation = location
+                            showAddPlaceSheet = true
+                            savePlaceRequested = false
+                        }
                     )
                     if (showAddPlaceSheet) {
                         AddPlaceSheet(
+                            latitude = selectedLocation?.latitude,
+                            longitude = selectedLocation?.longitude,
                             onDismiss = { showAddPlaceSheet = false },
                         )
                     }

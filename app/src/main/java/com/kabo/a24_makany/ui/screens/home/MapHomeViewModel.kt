@@ -2,9 +2,9 @@ package com.kabo.a24_makany.ui.screens.home
 
 import android.Manifest
 import android.app.Application
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.kabo.a24_makany.location.LocationHandler

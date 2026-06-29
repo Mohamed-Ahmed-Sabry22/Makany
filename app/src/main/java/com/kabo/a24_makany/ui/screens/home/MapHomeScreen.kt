@@ -3,11 +3,13 @@ package com.kabo.a24_makany.ui.screens.home
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Camera
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,10 +37,14 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.kabo.a24_makany.ui.components.MakanySearchBar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
 
 @Composable
-fun MapHomeScreen() {
+fun MapHomeScreen(
+    savePlaceRequested: Boolean,
+    onReadyToOpenSheet: (LatLng) -> Unit
+) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     // Launcher لطلب permission
@@ -62,19 +68,54 @@ fun MapHomeScreen() {
 
     }
 
-    val vm : MapHomeViewModel = viewModel()
 
+    val vm: MapHomeViewModel = viewModel()
     val userLocation by vm.userLocation.collectAsState()
+
+    var isSavingPlace by remember { mutableStateOf(false) }
+    // 1. LaunchedEffect دي وظيفتها "الطلب فقط" عند تغيير الـ permission
     LaunchedEffect(hasLocationPermission) {
-        if (hasLocationPermission) vm.fetchCurrentLocation()
+        if (hasLocationPermission) {
+            vm.fetchCurrentLocation()
+        }
+    }
+    // 2. LaunchedEffect تانية خالص مراقبة للـ userLocation ومسؤولة عن الـ Toast
+    LaunchedEffect(userLocation) {
+        userLocation?.let { location ->
+            Toast.makeText(
+                context,
+                "your location ${location.latitude}, ${location.longitude}.",
+                Toast.LENGTH_SHORT
+            ).show()
+            Log.d("LOCATION", "loc in map home updated to: $location")
+        }
+    }
+
+    LaunchedEffect(savePlaceRequested) {
+        if (!savePlaceRequested) return@LaunchedEffect
+        // المرحلة الأولى
+        vm.fetchCurrentLocation()
+
+    }
+
+    LaunchedEffect(userLocation, savePlaceRequested) {
+        if (!savePlaceRequested || userLocation == null) return@LaunchedEffect
+        isSavingPlace = true
+
+        delay(800)
+        onReadyToOpenSheet(userLocation!!)
+
     }
 
 
 
 
-
     Box(modifier = Modifier.fillMaxSize()) {
-        MakanyMap(modifier = Modifier.fillMaxSize() , userLocation = userLocation)
+        MakanyMap(
+            modifier = Modifier.fillMaxSize(),
+            userLocation = userLocation,
+            isSavingPlace = isSavingPlace
+        )
         MakanySearchBar(
             searchQuery = searchQuery,
             onQueryChanges = { it ->
@@ -88,22 +129,23 @@ fun MapHomeScreen() {
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun MakanyMap(modifier: Modifier = Modifier, userLocation: LatLng?) {
+fun MakanyMap(modifier: Modifier = Modifier, userLocation: LatLng?, isSavingPlace: Boolean) {
     val defaultLocation = LatLng(30.0444, 31.2357)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultLocation, 15f)
     }
-    val markerState = rememberUpdatedMarkerState()
-    LaunchedEffect(userLocation) {
+    LaunchedEffect(userLocation, isSavingPlace) {
         userLocation?.let {
             cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngZoom(it , 17f),
+                CameraUpdateFactory.newLatLngZoom(
+                    it,
+                    if (isSavingPlace) 19f else 17f
+                ),
                 durationMs = 800
             )
-            markerState.position = it
+
         }
     }
-
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
@@ -112,10 +154,19 @@ fun MakanyMap(modifier: Modifier = Modifier, userLocation: LatLng?) {
         ),
     ) {
         userLocation?.let {
-            Marker(state = markerState,
+            Marker(
+                state = rememberMarkerState(position = userLocation),
                 title = "You are here",
-                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+                icon = BitmapDescriptorFactory.defaultMarker(
+                    if (isSavingPlace) {
+                        140f // 🟢 رقم بيدي درجة أخضر شيك (جربها هتعجبك)
+                    } else {
+                        210f // 🔵 رقم بيدي درجة أزرق ميريال هادية (مش الفاقع الافتراضي)
+                    }
                 )
+            )
         }
+
+
     }
 }
