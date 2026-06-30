@@ -13,15 +13,22 @@ class GeocoderHandler(
 
     suspend fun getAddress(latLng: LatLng): String {
 
-        val addresses = geocoder.getFromLocation(
-            latLng.latitude,
-            latLng.longitude,
-            1
-        )
+        return try {
 
-        return if (!addresses.isNullOrEmpty()) {
-            addresses[0].getAddressLine(0)
-        } else {
+            val addresses = geocoder.getFromLocation(
+                latLng.latitude,
+                latLng.longitude,
+                1
+            )
+
+            if (!addresses.isNullOrEmpty()) {
+                addresses[0].getAddressLine(0)
+            } else {
+                "Unknown address"
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
             "Unknown address"
         }
     }

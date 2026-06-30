@@ -64,10 +64,11 @@ fun AddPlaceSheet(
     latitude: Double?,
     longitude: Double?,
     address: String,
-    onDismiss: ()->Unit,
-){
+    onDismiss: () -> Unit,
+) {
 
-    val categories = listOf("Home" , "Work" , "Food" , "Cafe" , "Park", "Other")
+    val categories = listOf("Home", "Work", "Food", "Cafe", "Park", "Other")
+    var isNameError by remember { mutableStateOf(false) }
     var placeName by remember { mutableStateOf("") }
     var placeNotes by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Home") }
@@ -122,9 +123,13 @@ fun AddPlaceSheet(
             }
             SheetTextField(
                 value = placeName,
-                onValueChange = {placeName = it},
+                onValueChange = {
+                    placeName = it
+                    if (isNameError) isNameError = false
+                },
                 labelText = "Place Name",
-                placeHolderText = "e.g.Home, Work, Favorite Cafe"
+                placeHolderText = "e.g.Home, Work, Favorite Cafe",
+                isError = isNameError,
             )
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -139,7 +144,7 @@ fun AddPlaceSheet(
                             selectedBorderColor = Color.Transparent
                         ),
                         selected = selectedCategory == category,
-                        onClick = {selectedCategory = category } ,
+                        onClick = { selectedCategory = category },
                         label = {
                             Row(
                                 horizontalArrangement = Arrangement.Center,
@@ -178,10 +183,10 @@ fun AddPlaceSheet(
             }
             SheetTextField(
                 value = placeNotes,
-                onValueChange = {placeNotes = it},
+                onValueChange = { placeNotes = it },
                 lines = 5,
                 labelText = "Notes",
-                placeHolderText = "Add some notes about this place..."
+                placeHolderText = "Add some notes about this place...",
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
@@ -211,23 +216,36 @@ fun AddPlaceSheet(
             val context = LocalContext.current
             Row(
                 modifier = Modifier.padding(vertical = 12.dp),
-            ) {SheetsButton(
-                "Save Place",
-                Icons.Rounded.BookmarkBorder,
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
-                    val place = Place(
-                        name = placeName,
-                        notes = placeNotes,
-                        category = selectedCategory,
-                        latitude = latitude,
-                        longitude = longitude,
-                        address = address,
-                        imageUri = selectedImageUri?.toString()                    )
-                    Log.d("PLACE", place.toString())
-                }
-            ) }
+            ) {
+                SheetsButton(
+                    "Save Place",
+                    Icons.Rounded.BookmarkBorder,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (placeName.isBlank()) {
+                            isNameError = true
+                            return@SheetsButton
+                        }
+                        // الكود سليم.. كمل حفظ المكان
+                        isNameError = false
+                        val place = Place(
+                            name = placeName.trim(),
+                            notes = placeNotes,
+                            category = selectedCategory,
+                            latitude = latitude,
+                            longitude = longitude,
+                            address = address,
+                            imageUri = selectedImageUri?.toString()
+                        )
+                        Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
+                        Log.d("PLACE", place.toString())
+                        onDismiss()
+                        // vm.savePlace(placeName)
+
+
+                    }
+                )
+            }
 
         }
 

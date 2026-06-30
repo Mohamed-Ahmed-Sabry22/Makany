@@ -102,7 +102,7 @@ fun MapHomeScreen(
     LaunchedEffect(userLocation, savePlaceRequested) {
         if (!savePlaceRequested || userLocation == null) return@LaunchedEffect
         isSavingPlace = true
-        delay(800)
+        delay(500)
         onReadyToOpenSheet(
             userLocation!!,
             currentAddress

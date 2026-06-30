@@ -14,6 +14,7 @@ import com.kabo.a24_makany.ui.theme.Shape
 @Composable
 fun SheetTextField(
     value : String,
+    isError : Boolean = false,
     onValueChange : (String)->Unit,
     lines : Int = 1,
     labelText : String,
@@ -25,6 +26,7 @@ fun SheetTextField(
             .padding(vertical = 6.dp),
         value = value,
         onValueChange = onValueChange,
+        isError = isError,
         minLines = lines,
         label = {
             Text(
@@ -38,6 +40,11 @@ fun SheetTextField(
                 style = MaterialTheme.typography.labelSmall,
                 color = Color(0xFF7C7C7C)
             )
+        },
+        supportingText = {
+            if (isError) {
+                Text(text = "This field cannot be empty", color = MaterialTheme.colorScheme.error)
+            }
         },
         shape = Shape.small
     )
