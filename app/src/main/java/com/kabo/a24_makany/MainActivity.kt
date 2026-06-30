@@ -78,6 +78,9 @@ class MainActivity : ComponentActivity() {
                 var selectedLocation by remember {
                     mutableStateOf<LatLng?>(null)
                 }
+                var selectedAddress by remember {
+                    mutableStateOf("")
+                }
                 var savePlaceRequested by remember {
                     mutableStateOf(false)
                 }
@@ -101,9 +104,9 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         modifier = Modifier.padding(innerPadding),
                         savePlaceRequested = savePlaceRequested,
-                        onReadyToOpenSheet = {
-                            location ->
+                        onReadyToOpenSheet = { location, address ->
                             selectedLocation = location
+                            selectedAddress = address
                             showAddPlaceSheet = true
                             savePlaceRequested = false
                         }
@@ -112,6 +115,7 @@ class MainActivity : ComponentActivity() {
                         AddPlaceSheet(
                             latitude = selectedLocation?.latitude,
                             longitude = selectedLocation?.longitude,
+                            address = selectedAddress,
                             onDismiss = { showAddPlaceSheet = false },
                         )
                     }

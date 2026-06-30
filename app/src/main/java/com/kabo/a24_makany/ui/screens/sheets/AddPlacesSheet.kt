@@ -1,8 +1,8 @@
 package com.kabo.a24_makany.ui.screens.sheets
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.AddHome
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalCafe
 import androidx.compose.material.icons.outlined.Map
@@ -49,6 +50,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.kabo.a24_makany.model.Place
 import com.kabo.a24_makany.ui.components.SheetTextField
 import com.kabo.a24_makany.ui.components.SheetsButton
 import com.kabo.a24_makany.ui.theme.Primary
@@ -61,10 +63,11 @@ import com.kabo.a24_makany.ui.theme.Surface
 fun AddPlaceSheet(
     latitude: Double?,
     longitude: Double?,
+    address: String,
     onDismiss: ()->Unit,
 ){
 
-    val categories = listOf("Home" , "Work" , "Food" , "Cafe" , "Park")
+    val categories = listOf("Home" , "Work" , "Food" , "Cafe" , "Park", "Other")
     var placeName by remember { mutableStateOf("") }
     var placeNotes by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Home") }
@@ -151,6 +154,7 @@ fun AddPlaceSheet(
                                         "Work" -> Icons.Outlined.WorkOutline
                                         "Food" -> Icons.Outlined.Restaurant
                                         "Cafe" -> Icons.Outlined.LocalCafe
+                                        "Other" -> Icons.Outlined.AddHome
                                         else -> Icons.Outlined.Park
                                     },
                                     contentDescription = null,
@@ -201,8 +205,7 @@ fun AddPlaceSheet(
                         Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(text = "$latitude , $longitude"
-                    )
+                    Text(address)
                 }
             }
             val context = LocalContext.current
@@ -214,7 +217,15 @@ fun AddPlaceSheet(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
-                    //الي هيحصل لما ادوس save place
+                    val place = Place(
+                        name = placeName,
+                        notes = placeNotes,
+                        category = selectedCategory,
+                        latitude = latitude,
+                        longitude = longitude,
+                        address = address,
+                        imageUri = selectedImageUri?.toString()                    )
+                    Log.d("PLACE", place.toString())
                 }
             ) }
 

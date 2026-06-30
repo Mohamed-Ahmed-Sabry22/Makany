@@ -43,7 +43,7 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun MapHomeScreen(
     savePlaceRequested: Boolean,
-    onReadyToOpenSheet: (LatLng) -> Unit
+    onReadyToOpenSheet: (LatLng, String) -> Unit
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
@@ -71,6 +71,7 @@ fun MapHomeScreen(
 
     val vm: MapHomeViewModel = viewModel()
     val userLocation by vm.userLocation.collectAsState()
+    val currentAddress by vm.currentAddress.collectAsState()
 
     var isSavingPlace by remember { mutableStateOf(false) }
     // 1. LaunchedEffect دي وظيفتها "الطلب فقط" عند تغيير الـ permission
@@ -87,7 +88,7 @@ fun MapHomeScreen(
                 "your location ${location.latitude}, ${location.longitude}.",
                 Toast.LENGTH_SHORT
             ).show()
-            Log.d("LOCATION", "loc in map home updated to: $location")
+            vm.fetchAddress(location)
         }
     }
 
@@ -101,9 +102,11 @@ fun MapHomeScreen(
     LaunchedEffect(userLocation, savePlaceRequested) {
         if (!savePlaceRequested || userLocation == null) return@LaunchedEffect
         isSavingPlace = true
-
         delay(800)
-        onReadyToOpenSheet(userLocation!!)
+        onReadyToOpenSheet(
+            userLocation!!,
+            currentAddress
+        )
 
     }
 
@@ -159,9 +162,9 @@ fun MakanyMap(modifier: Modifier = Modifier, userLocation: LatLng?, isSavingPlac
                 title = "You are here",
                 icon = BitmapDescriptorFactory.defaultMarker(
                     if (isSavingPlace) {
-                        140f // 🟢 رقم بيدي درجة أخضر شيك (جربها هتعجبك)
+                        180f // 🟢 رقم بيدي درجة أخضر شيك (جربها هتعجبك)
                     } else {
-                        210f // 🔵 رقم بيدي درجة أزرق ميريال هادية (مش الفاقع الافتراضي)
+                        240f // 🔵 رقم بيدي درجة أزرق ميريال هادية (مش الفاقع الافتراضي)
                     }
                 )
             )

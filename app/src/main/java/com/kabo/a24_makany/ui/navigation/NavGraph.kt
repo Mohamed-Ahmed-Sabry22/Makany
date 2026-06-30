@@ -16,7 +16,7 @@ fun NavGraph(
     navController: NavHostController,
     modifier: Modifier,
     savePlaceRequested: Boolean,
-    onReadyToOpenSheet: (LatLng) -> Unit
+    onReadyToOpenSheet: (LatLng, String) -> Unit
 ) {
     NavHost(
         navController = navController,
