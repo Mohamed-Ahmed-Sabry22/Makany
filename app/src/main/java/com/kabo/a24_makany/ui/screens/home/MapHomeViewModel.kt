@@ -2,13 +2,17 @@ package com.kabo.a24_makany.ui.screens.home
 
 import android.Manifest
 import android.app.Application
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.kabo.a24_makany.data.local.PlaceEntity
+import com.kabo.a24_makany.data.local.PlacesDatabase
+import com.kabo.a24_makany.data.repository.PlacesRepository
 import com.kabo.a24_makany.location.GeocoderHandler
 import com.kabo.a24_makany.location.LocationHandler
+import com.kabo.a24_makany.model.Place
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -44,4 +48,5 @@ class MapHomeViewModel(application : Application) : AndroidViewModel(application
         }
 
     }
+
 }

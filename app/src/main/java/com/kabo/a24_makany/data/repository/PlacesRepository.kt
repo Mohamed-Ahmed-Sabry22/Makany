@@ -5,7 +5,7 @@ import com.kabo.a24_makany.data.local.PlacesDao
 
 class PlacesRepository (val dao : PlacesDao) {
 
-    suspend fun upsert (place : PlaceEntity) = dao.upsertPlace(place)
+    suspend fun upsert (place: PlaceEntity) = dao.upsertPlace(place)
 
     suspend fun delete(place: PlaceEntity) = dao.deletePlace(place)
 

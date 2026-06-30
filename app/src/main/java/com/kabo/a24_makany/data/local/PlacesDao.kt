@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface PlacesDao {
 
     @Upsert
-    suspend fun upsertPlace(place : PlaceEntity)
+    suspend fun upsertPlace(place: PlaceEntity)
 
     @Delete
     suspend fun deletePlace(place: PlaceEntity)

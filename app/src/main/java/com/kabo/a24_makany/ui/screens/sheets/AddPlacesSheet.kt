@@ -49,10 +49,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import com.kabo.a24_makany.model.Place
+import com.kabo.a24_makany.data.local.PlaceEntity
 import com.kabo.a24_makany.ui.components.SheetTextField
 import com.kabo.a24_makany.ui.components.SheetsButton
+import com.kabo.a24_makany.ui.screens.places.PlacesViewModel
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
@@ -78,6 +80,7 @@ fun AddPlaceSheet(
     ) { uri ->
         selectedImageUri = uri
     }
+    val vm: PlacesViewModel = viewModel()
     ModalBottomSheet(
         onDismissRequest = onDismiss
     ) {
@@ -228,7 +231,7 @@ fun AddPlaceSheet(
                         }
                         // الكود سليم.. كمل حفظ المكان
                         isNameError = false
-                        val place = Place(
+                        val place = PlaceEntity(
                             name = placeName.trim(),
                             notes = placeNotes,
                             category = selectedCategory,
@@ -239,10 +242,9 @@ fun AddPlaceSheet(
                         )
                         Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
                         Log.d("PLACE", place.toString())
+
+                        vm.savePlace(place)
                         onDismiss()
-                        // vm.savePlace(placeName)
-
-
                     }
                 )
             }
