@@ -3,10 +3,13 @@ package com.kabo.a24_makany.ui.screens.sheets
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,11 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.AddHome
 import androidx.compose.material.icons.outlined.Directions
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalCafe
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Park
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.ShareLocation
@@ -53,7 +58,8 @@ fun PlaceDetailesSheet(
     place: PlaceEntity,
     onGoClick: () -> Unit,
     onShareClick: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onDelete: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -61,46 +67,30 @@ fun PlaceDetailesSheet(
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
+            //place name
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
 
-            Text(
-                place.name,
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(Shape.medium)
-                    .background(Secondary),
-                contentAlignment = Alignment.Center
-            ) {
-                if (place.imageUri != null) {
-                    AsyncImage(
-                        model = File(place.imageUri),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(R.drawable.icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(28.dp)
-
-                    )
-                }
+                ) {
+                Text(
+                    place.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable {
+                            onDelete()
+                        }
+                )
 
             }
-            Text(
-                place.name,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
             Spacer(modifier = Modifier.height(8.dp))
-
+            //photo
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -124,82 +114,99 @@ fun PlaceDetailesSheet(
                     )
                 }
             }
-
+            //note + category
             Spacer(modifier = Modifier.height(12.dp))
-
-        // Category
+            Text(
+                text = "Note",
+                style = MaterialTheme.typography.titleSmall
+            )
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+
             ) {
-                Icon(
-                    imageVector = when (place.category) {
-                        "Home" -> Icons.Outlined.Home
-                        "Work" -> Icons.Outlined.WorkOutline
-                        "Food" -> Icons.Outlined.Restaurant
-                        "Cafe" -> Icons.Outlined.LocalCafe
-                        "Other" -> Icons.Outlined.AddHome
-                        else -> Icons.Outlined.Park
-                    },
-                    contentDescription = null,
-                    tint = Primary,
-                    modifier = Modifier.size(18.dp)
-                )
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                Text(
-                    text = place.category,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Address
-            Row(
-                verticalAlignment = Alignment.Top
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.LocationOn,
-                    contentDescription = null,
-                    tint = Primary,
-                    modifier = Modifier.size(18.dp)
-                )
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                Text(
-                    text = place.address,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            if (place.notes.isNotBlank()) {
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "Notes",
-                    style = MaterialTheme.typography.titleSmall
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(Shape.medium)
+                        .clip(Shape.small)
                         .background(Surface)
-                        .padding(12.dp)
+                        .padding(8.dp)
+                        .weight(1f),
                 ) {
                     Text(
                         text = place.notes,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-            }
+                Spacer(modifier = Modifier.width(6.dp))
+                // Category
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(vertical = 6.dp)
+                        .clip(Shape.small)
+                        .background(Color(0xFFE5E5E5)),
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = when (place.category) {
+                                "Home" -> Icons.Outlined.Home
+                                "Work" -> Icons.Outlined.WorkOutline
+                                "Food" -> Icons.Outlined.Restaurant
+                                "Cafe" -> Icons.Outlined.LocalCafe
+                                "Other" -> Icons.Outlined.AddHome
+                                else -> Icons.Outlined.Park
+                            },
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = place.category,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+
+            }
+            //address
+            Text(
+                "Address",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+                    .clip(Shape.small)
+                    .background(Color(0xFFE5E5E5))
+            ) {
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Map,
+                        contentDescription = null,
+                        Modifier
+                            .size(18.dp)
+                            .padding(end = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        place.address,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            //buttons
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

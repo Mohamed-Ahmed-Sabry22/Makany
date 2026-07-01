@@ -127,17 +127,17 @@ fun PlaceCard(
                             else -> Icons.Filled.Park
                         },
                         contentDescription = null,
-                        tint = Color(0xFFFFB300),
-                        modifier = Modifier.size(16.dp)
+                        tint = Primary,
+                        modifier = Modifier.size(12.dp)
                     )
                     Text(
                         text = " ${place.category}",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "📍 ${place.address}",
+                    text = place.address,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = Ellipsis

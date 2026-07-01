@@ -212,6 +212,7 @@ fun AddPlaceSheet(
                         imageVector = Icons.Outlined.Map,
                         contentDescription = null,
                         Modifier.size(18.dp)
+                            .padding(end = 4.dp)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(address)

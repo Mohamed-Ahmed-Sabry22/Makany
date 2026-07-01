@@ -142,7 +142,7 @@ fun MakanyMap(modifier: Modifier = Modifier, userLocation: LatLng?, isSavingPlac
             cameraPositionState.animate(
                 CameraUpdateFactory.newLatLngZoom(
                     it,
-                    if (isSavingPlace) 19f else 17f
+                    if (isSavingPlace) 18f else 17f
                 ),
                 durationMs = 800
             )

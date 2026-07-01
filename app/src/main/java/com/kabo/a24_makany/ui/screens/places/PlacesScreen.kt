@@ -77,9 +77,7 @@ fun PlacesScreen() {
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                     Text(
-                        text = "No places yet\n" +
-                                "\n" +
-                                "Save your first place.",
+                        text = "No places yet, Save your first place.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -106,7 +104,8 @@ fun PlacesScreen() {
     val context = LocalContext.current
     if (showPlaceDetailesSheet) {
         selectedPlace?.let { place ->
-            PlaceDetailesSheet(place = place, onGoClick = {
+            PlaceDetailesSheet(
+                place = place, onGoClick = {
                 Toast.makeText(context, "gone done", Toast.LENGTH_SHORT).show()
                 val uri = "google.navigation:q=${place.latitude},${place.longitude}".toUri()
 
@@ -137,7 +136,14 @@ https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longit
             }, onDismiss = {
                 showPlaceDetailesSheet = false
                 selectedPlace = null
-            })
+            },
+                onDelete = {
+                    vm.deletePlace(selectedPlace!!)
+                    showPlaceDetailesSheet = false
+                    selectedPlace = null
+                }
+            )
+
         }
 
     }
