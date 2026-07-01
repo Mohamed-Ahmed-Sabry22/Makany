@@ -58,6 +58,7 @@ import com.kabo.a24_makany.ui.screens.places.PlacesViewModel
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
+import com.kabo.a24_makany.utils.ImageStorageHelper
 
 
 @Composable
@@ -231,6 +232,11 @@ fun AddPlaceSheet(
                         }
                         // الكود سليم.. كمل حفظ المكان
                         isNameError = false
+                        val imageHelper = ImageStorageHelper(context)
+                        val savedImagePath =
+                            selectedImageUri?.let {
+                                imageHelper.saveImage(it)
+                            }
                         val place = PlaceEntity(
                             name = placeName.trim(),
                             notes = placeNotes,
@@ -238,7 +244,7 @@ fun AddPlaceSheet(
                             latitude = latitude,
                             longitude = longitude,
                             address = address,
-                            imageUri = selectedImageUri?.toString()
+                            imageUri = savedImagePath
                         )
                         Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
                         Log.d("PLACE", place.toString())

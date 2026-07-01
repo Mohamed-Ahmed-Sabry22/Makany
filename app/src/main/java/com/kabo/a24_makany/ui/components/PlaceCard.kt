@@ -1,5 +1,6 @@
 package com.kabo.a24_makany.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,16 +40,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.kabo.a24_makany.R
 import com.kabo.a24_makany.data.local.PlaceEntity
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
+import java.io.File
 
 
 @Composable
-fun PlaceCard(place : PlaceEntity,
+fun PlaceCard(
+    place: PlaceEntity,
     onClick: () -> Unit
 ) {
     Card(
@@ -69,26 +79,42 @@ fun PlaceCard(place : PlaceEntity,
                 modifier = Modifier
                     .size(80.dp)
                     .clip(Shape.medium)
-                    .background(Primary)
+                    .background(Secondary)
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Place,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                if (place.imageUri != null) {
+                    AsyncImage(
+                        model = File(place.imageUri),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.icon),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(22.dp)
+                    )
+                }
             }
             // النص
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = place.name,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = Ellipsis
                 )
-                Text(
-                    text = place.notes,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
+                if (place.notes.isNotBlank()) {
+                    Text(
+                        text = place.notes,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -109,12 +135,19 @@ fun PlaceCard(place : PlaceEntity,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "📍 ${place.address}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = Ellipsis
+                )
             }
 
             // السهم
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(36.dp)
                     .clip(CircleShape)
                     .background(Secondary),
                 contentAlignment = Alignment.Center
