@@ -13,9 +13,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddHome
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalCafe
+import androidx.compose.material.icons.filled.Park
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.material.icons.outlined.AddHome
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LocalCafe
+import androidx.compose.material.icons.outlined.Park
 import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -27,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kabo.a24_makany.data.local.PlaceEntity
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
@@ -34,10 +47,7 @@ import com.kabo.a24_makany.ui.theme.Surface
 
 
 @Composable
-fun PlaceCard(
-    name: String,
-    address: String,
-    rating: Double,
+fun PlaceCard(place : PlaceEntity,
     onClick: () -> Unit
 ) {
     Card(
@@ -71,24 +81,31 @@ fun PlaceCard(
             // النص
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = name,
+                    text = place.name,
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    text = address,
+                    text = place.notes,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Outlined.Star,
+                        imageVector = when (place.category) {
+                            "Home" -> Icons.Filled.Home
+                            "Work" -> Icons.Filled.WorkOutline
+                            "Food" -> Icons.Filled.Restaurant
+                            "Cafe" -> Icons.Filled.LocalCafe
+                            "Other" -> Icons.Filled.AddHome
+                            else -> Icons.Filled.Park
+                        },
                         contentDescription = null,
                         tint = Color(0xFFFFB300),
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = " $rating",
+                        text = " ${place.category}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

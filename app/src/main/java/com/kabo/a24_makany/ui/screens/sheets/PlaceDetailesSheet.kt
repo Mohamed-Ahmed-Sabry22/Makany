@@ -29,7 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.kabo.a24_makany.R
+import com.kabo.a24_makany.data.local.PlaceEntity
 import com.kabo.a24_makany.ui.components.SheetsButton
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
@@ -39,6 +41,7 @@ import com.kabo.a24_makany.ui.theme.Surface
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun PlaceDetailesSheet(
+    place : PlaceEntity,
     onGoClick: () -> Unit,
     onShareClick: () -> Unit,
     onDismiss: () -> Unit
@@ -51,7 +54,7 @@ fun PlaceDetailesSheet(
         ) {
 
             Text(
-                "12 Elshopan - sohag",
+                place.name,
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(modifier = Modifier.height(6.dp))
@@ -63,12 +66,23 @@ fun PlaceDetailesSheet(
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(R.drawable.k),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                if (place.imageUri != null) {
+                    AsyncImage(
+                        model = place.imageUri,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Icon
+                    Image(
+                        painter = painterResource(R.drawable.k),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,

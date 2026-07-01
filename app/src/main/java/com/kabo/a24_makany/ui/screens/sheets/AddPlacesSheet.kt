@@ -204,7 +204,7 @@ fun AddPlaceSheet(
                     .background(Color(0xFFE5E5E5))
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                     modifier = Modifier.padding(12.dp)
                 ) {
                     Icon(

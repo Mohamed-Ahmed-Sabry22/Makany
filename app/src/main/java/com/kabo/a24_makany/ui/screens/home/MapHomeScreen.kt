@@ -162,9 +162,9 @@ fun MakanyMap(modifier: Modifier = Modifier, userLocation: LatLng?, isSavingPlac
                 title = "You are here",
                 icon = BitmapDescriptorFactory.defaultMarker(
                     if (isSavingPlace) {
-                        180f // 🟢 رقم بيدي درجة أخضر شيك (جربها هتعجبك)
+                        140f
                     } else {
-                        240f // 🔵 رقم بيدي درجة أزرق ميريال هادية (مش الفاقع الافتراضي)
+                        240f
                     }
                 )
             )
