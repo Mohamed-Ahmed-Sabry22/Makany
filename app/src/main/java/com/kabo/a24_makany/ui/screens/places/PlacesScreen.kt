@@ -8,14 +8,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -43,22 +47,29 @@ fun PlacesScreen() {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var showPlaceDetailesSheet by rememberSaveable { mutableStateOf(false) }
     val vm: PlacesViewModel = viewModel()
-    val places by vm.places.collectAsState(initial = emptyList())
+    val uiState by vm.uiState.collectAsState()
     var selectedPlace by remember { mutableStateOf<PlaceEntity?>(null) }
     val filteredPlaces =
         if (searchQuery.isBlank())
-            places
+            uiState.places
         else
-            places.filter {
-                it.name.contains(searchQuery, true)
+            uiState.places.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
             }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MakanySearchBar(
-            searchQuery = searchQuery, onQueryChanges = { searchQuery = it })
-        // 1. التشييك على اللستة لو فاضية
-        if (filteredPlaces.isEmpty()) {
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp)
+                    .padding(top = 100.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.secondary,
+            )
+        } else if (filteredPlaces.isEmpty()) {
+            MakanySearchBar(
+                searchQuery = searchQuery, onQueryChanges = { searchQuery = it })
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,8 +94,11 @@ fun PlacesScreen() {
                     )
                 }
             }
+
         } else {
-            // 2. إيلس: لو اللستة فيها بيانات يعرض كودك القديم زي ما هو
+            MakanySearchBar(
+                searchQuery = searchQuery, onQueryChanges = { searchQuery = it })
+            // LazyColumn
             LazyColumn(
                 contentPadding = PaddingValues(bottom = 24.dp),
                 modifier = Modifier.weight(1f) // عشان السكرول يظبط مع السيرش بار
@@ -99,6 +113,7 @@ fun PlacesScreen() {
                     )
                 }
             }
+
         }
     }
     val context = LocalContext.current
@@ -106,18 +121,18 @@ fun PlacesScreen() {
         selectedPlace?.let { place ->
             PlaceDetailesSheet(
                 place = place, onGoClick = {
-                Toast.makeText(context, "gone done", Toast.LENGTH_SHORT).show()
-                val uri = "google.navigation:q=${place.latitude},${place.longitude}".toUri()
+                    Toast.makeText(context, "gone done", Toast.LENGTH_SHORT).show()
+                    val uri = "google.navigation:q=${place.latitude},${place.longitude}".toUri()
 
-                val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                    setPackage("com.google.android.apps.maps")
-                }
-                if (intent.resolveActivity(context.packageManager) != null) {
-                    context.startActivity(intent)
-                }
-            }, onShareClick = {
-                Toast.makeText(context, "place shared", Toast.LENGTH_SHORT).show()
-                val shareText = """
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        setPackage("com.google.android.apps.maps")
+                    }
+                    if (intent.resolveActivity(context.packageManager) != null) {
+                        context.startActivity(intent)
+                    }
+                }, onShareClick = {
+                    Toast.makeText(context, "place shared", Toast.LENGTH_SHORT).show()
+                    val shareText = """
 📍 ${place.name}
 
 ${place.address}
@@ -125,18 +140,18 @@ ${place.address}
 https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}
 """.trimIndent()
 
-                val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, shareText)
-                }
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                    }
 
-                context.startActivity(
-                    Intent.createChooser(intent, "Share place")
-                )
-            }, onDismiss = {
-                showPlaceDetailesSheet = false
-                selectedPlace = null
-            },
+                    context.startActivity(
+                        Intent.createChooser(intent, "Share place")
+                    )
+                }, onDismiss = {
+                    showPlaceDetailesSheet = false
+                    selectedPlace = null
+                },
                 onDelete = {
                     vm.deletePlace(selectedPlace!!)
                     showPlaceDetailesSheet = false

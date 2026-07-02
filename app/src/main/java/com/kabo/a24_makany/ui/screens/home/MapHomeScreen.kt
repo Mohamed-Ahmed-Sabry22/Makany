@@ -55,9 +55,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import androidx.compose.foundation.background
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.graphics.toArgb
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.maps.android.compose.MarkerState
+
 @Composable
 fun MapHomeScreen(
     savePlaceRequested: Boolean,
@@ -124,8 +128,7 @@ fun MapHomeScreen(
     }
 
     val placesvm: PlacesViewModel = viewModel()
-    val places by placesvm.places.collectAsState(initial = emptyList())
-
+    val uiState by placesvm.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -133,7 +136,7 @@ fun MapHomeScreen(
             modifier = Modifier.fillMaxSize(),
             userLocation = userLocation,
             isSavingPlace = isSavingPlace,
-            places = places
+            places = uiState.places
         )
         CurrentLocationCard(
             address = currentAddress,
@@ -154,6 +157,7 @@ fun MakanyMap(
     isSavingPlace: Boolean,
     places: List<PlaceEntity>
 ) {
+    var isMapLoaded by remember { mutableStateOf(false) }
     val defaultLocation = LatLng(30.0444, 31.2357)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultLocation, 15f)
@@ -180,7 +184,10 @@ fun MakanyMap(
                 context,
                 R.raw.map_style
             )
-        )
+        ),
+        onMapLoaded = {
+            isMapLoaded = true
+        }
     ) {
         userLocation?.let {
             Marker(
@@ -197,9 +204,7 @@ fun MakanyMap(
             val lng = place.longitude ?: return@forEach
 
             Marker(
-                state = rememberMarkerState(
-                    position = LatLng(lat, lng)
-                ),
+                state = MarkerState(LatLng(lat, lng)),
                 title = place.name,
                 icon = bitmapDescriptorFromColor(Color(0xFF2D6A4F)), // Primary
                 snippet = place.category
@@ -208,6 +213,20 @@ fun MakanyMap(
         }
 
 
+    }
+    if (!isMapLoaded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.secondary,
+            )
+        }
     }
 }
 
