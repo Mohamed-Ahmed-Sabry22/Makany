@@ -2,7 +2,6 @@ package com.kabo.a24_makany.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -38,21 +37,27 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import com.kabo.a24_makany.R
 import com.kabo.a24_makany.data.local.PlaceEntity
-import com.kabo.a24_makany.ui.components.MakanySearchBar
 import com.kabo.a24_makany.ui.screens.places.PlacesViewModel
 import com.kabo.a24_makany.ui.theme.Secondary
 import kotlinx.coroutines.delay
-
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import androidx.compose.ui.graphics.toArgb
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 @Composable
 fun MapHomeScreen(
     savePlaceRequested: Boolean,
@@ -165,23 +170,25 @@ fun MakanyMap(
 
         }
     }
+    val context = LocalContext.current
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(
-            mapType = MapType.NORMAL
-        ),
+            mapType = MapType.NORMAL,
+            mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
+                context,
+                R.raw.map_style
+            )
+        )
     ) {
         userLocation?.let {
             Marker(
                 state = rememberMarkerState(position = userLocation),
                 title = "You are here",
-                icon = BitmapDescriptorFactory.defaultMarker(
-                    if (isSavingPlace) {
-                        140f
-                    } else {
-                        240f
-                    }
+                icon = bitmapDescriptorFromColor(
+                    if (isSavingPlace) Color(0xFF2D6A4F)// Primary
+                    else Color(0xFFFF9800) // Accent
                 )
             )
         }
@@ -194,9 +201,7 @@ fun MakanyMap(
                     position = LatLng(lat, lng)
                 ),
                 title = place.name,
-                icon = BitmapDescriptorFactory.defaultMarker(
-                    120f
-                ),
+                icon = bitmapDescriptorFromColor(Color(0xFF2D6A4F)), // Primary
                 snippet = place.category
 
             )
@@ -262,4 +267,29 @@ fun CurrentLocationCard(
             }
         }
     }
+}
+fun bitmapDescriptorFromColor(color: Color): BitmapDescriptor {
+    val colorInt = color.toArgb()
+
+    val paint = android.graphics.Paint().apply {
+        this.color = colorInt
+        isAntiAlias = true
+    }
+
+    val bitmap = Bitmap.createBitmap(90, 120, Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(bitmap)
+
+// الدائرة أكبر
+    canvas.drawCircle(30f, 30f, 30f, paint)
+
+// الذيل أكبر
+    val path = Path().apply {
+        moveTo(18f, 52f)
+        lineTo(42f, 52f)
+        lineTo(30f, 82f)
+        close()
+    }
+    canvas.drawPath(path, paint)
+
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
