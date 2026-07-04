@@ -78,5 +78,6 @@ dependencies {
     implementation("com.google.android.libraries.places:places:5.2.0")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 }

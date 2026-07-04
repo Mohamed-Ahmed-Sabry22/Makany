@@ -1,12 +1,11 @@
 package com.kabo.a24_makany
 
-import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -36,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,8 +48,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.model.LatLng
 import com.kabo.a24_makany.ui.navigation.NavGraph
+import com.kabo.a24_makany.ui.screens.SplashScreen
 import com.kabo.a24_makany.ui.screens.sheets.AddPlaceSheet
-import com.kabo.a24_makany.ui.theme.Accent
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("SplashTest", "onCreate")
         enableEdgeToEdge()
         setContent {
             _24_MakanyTheme(
@@ -68,10 +69,6 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val currentDestination =
                     navController.currentBackStackEntryAsState().value?.destination?.route
-                val showBottomBar = currentDestination != "login" && currentDestination != "signup"
-                val showTopBar = currentDestination == "places"
-                val showFAB = currentDestination == "home"
-
                 var showAddPlaceSheet by remember {
                     mutableStateOf(false)
                 }
@@ -84,42 +81,73 @@ class MainActivity : ComponentActivity() {
                 var savePlaceRequested by remember {
                     mutableStateOf(false)
                 }
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        if (showTopBar) TopBar()
-                    },
-                    bottomBar = {
-                        if (showBottomBar) BottomNavigationBar(currentDestination, navController)
-                    },
-                    floatingActionButton = {
-                        if (showFAB) FAB(onClick = {
-
-                            savePlaceRequested = true
-                            //showAddPlaceSheet = true
-                        })
-                    }
-                ) { innerPadding ->
-                    NavGraph(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding),
-                        savePlaceRequested = savePlaceRequested,
-                        onReadyToOpenSheet = { location, address ->
-                            selectedLocation = location
-                            selectedAddress = address
-                            showAddPlaceSheet = true
-                            savePlaceRequested = false
-                        }
-                    )
-                    if (showAddPlaceSheet) {
-                        AddPlaceSheet(
-                            latitude = selectedLocation?.latitude,
-                            longitude = selectedLocation?.longitude,
-                            address = selectedAddress,
-                            onDismiss = { showAddPlaceSheet = false },
-                        )
-                    }
+                var splashFinished by rememberSaveable {
+                    mutableStateOf(false)
                 }
+                val showBottomBar =
+                    splashFinished &&
+                            currentDestination != "login" &&
+                            currentDestination != "signup"
+
+                val showFAB =
+                    splashFinished &&
+                            currentDestination == "home"
+
+                val showTopBar =
+                    splashFinished &&
+                            currentDestination == "places"
+
+
+                    if (!splashFinished) {
+                        SplashScreen(onFinished = {
+                            splashFinished = true
+
+                        })
+
+                    } else {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            topBar = {
+                                if (showTopBar) TopBar()
+                            },
+                            bottomBar = {
+                                if (showBottomBar) BottomNavigationBar(
+                                    currentDestination,
+                                    navController
+                                )
+                            },
+                            floatingActionButton = {
+                                if (showFAB) FAB(onClick = {
+
+                                    savePlaceRequested = true
+                                    //showAddPlaceSheet = true
+                                })
+                            }
+                        ) { innerPadding ->
+                            NavGraph(
+                                navController = navController,
+                                modifier = Modifier.padding(innerPadding),
+                                savePlaceRequested = savePlaceRequested,
+                                onReadyToOpenSheet = { location, address ->
+                                    selectedLocation = location
+                                    selectedAddress = address
+                                    showAddPlaceSheet = true
+                                    savePlaceRequested = false
+                                }
+                            )
+                            if (showAddPlaceSheet) {
+                                AddPlaceSheet(
+                                    latitude = selectedLocation?.latitude,
+                                    longitude = selectedLocation?.longitude,
+                                    address = selectedAddress,
+                                    onDismiss = { showAddPlaceSheet = false },
+                                )
+                            }
+                        }
+
+                    }
+
+
             }
         }
     }
@@ -142,7 +170,7 @@ private fun FAB(onClick: () -> Unit) {
             Text(
                 "Save Place",
                 style = MaterialTheme.typography.titleSmall,
-                color =Primary
+                color = Primary
             )
             Icon(
                 imageVector = Icons.Outlined.Place,
