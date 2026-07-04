@@ -2,6 +2,7 @@ package com.kabo.a24_makany.utils
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.content.FileProvider
 import java.io.File
 import java.util.UUID
 
@@ -31,5 +32,25 @@ class ImageStorageHelper(
         }
 
         return imageFile.absolutePath
+    }
+
+    fun createCameraImageUri(): Uri {
+
+        val imagesDir = File(context.cacheDir, "camera")
+
+        if (!imagesDir.exists()) {
+            imagesDir.mkdirs()
+        }
+
+        val imageFile = File(
+            imagesDir,
+            "camera_${System.currentTimeMillis()}.jpg"
+        )
+
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            imageFile
+        )
     }
 }

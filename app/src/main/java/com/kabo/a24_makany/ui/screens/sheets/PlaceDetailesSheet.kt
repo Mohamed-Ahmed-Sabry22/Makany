@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.AddHome
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Directions
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalCafe
 import androidx.compose.material.icons.outlined.LocationOn
@@ -68,50 +70,92 @@ fun PlaceDetailesSheet(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
             //place name
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
 
-                ) {
                 Text(
                     place.name,
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable {
-                            onDelete()
-                        }
-                )
-
-            }
             Spacer(modifier = Modifier.height(8.dp))
             //photo
-            Box(
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .height(160.dp)
-                    .clip(Shape.medium)
-                    .background(Secondary),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
             ) {
-                if (place.imageUri != null) {
-                    AsyncImage(
-                        model = File(place.imageUri),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(R.drawable.icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(28.dp)
-                    )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .clip(Shape.medium)
+                        .background(Secondary),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    if (place.imageUri != null) {
+                        AsyncImage(
+                            model = File(place.imageUri),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    // Edit
+                    Box(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .weight(1f)
+                            .clip(Shape.medium)
+                            .background(Surface)
+                            .clickable {
+                                // TODO Edit
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = "Edit",
+                            tint = Primary
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Delete
+                    Box(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .weight(1f)
+                            .clip(Shape.medium)
+                            .background(Surface)
+                            .clickable {
+                                // TODO Delete
+                                onDelete()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.DeleteOutline,
+                            contentDescription = "Delete",
+                            tint = Primary
+                        )
+                    }
                 }
             }
             //note + category

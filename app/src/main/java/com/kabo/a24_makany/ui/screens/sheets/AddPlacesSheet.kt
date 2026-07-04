@@ -1,5 +1,6 @@
 package com.kabo.a24_makany.ui.screens.sheets
 
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,7 +29,9 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalCafe
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Park
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.ShareLocation
 import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.kabo.a24_makany.data.local.PlaceEntity
@@ -59,6 +64,7 @@ import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
 import com.kabo.a24_makany.utils.ImageStorageHelper
+import java.util.jar.Manifest
 
 
 @Composable
@@ -81,6 +87,41 @@ fun AddPlaceSheet(
     ) { uri ->
         selectedImageUri = uri
     }
+    val context = LocalContext.current
+
+    val cameraImageUri = remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicture()
+        ) { success ->
+            if (success) {
+                selectedImageUri = cameraImageUri.value
+            }
+        }
+    var pendingCamera by remember { mutableStateOf(false) }
+
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
+
+            if (granted && pendingCamera) {
+                pendingCamera = false
+
+                val helper = ImageStorageHelper(context)
+                val uri = helper.createCameraImageUri()
+
+                cameraImageUri.value = uri
+                cameraLauncher.launch(uri)
+            }
+        }
+
+    var showImagePickerDialog by remember {
+        mutableStateOf(false)
+    }
     val vm: PlacesViewModel = viewModel()
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -94,37 +135,107 @@ fun AddPlaceSheet(
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Box(
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .height(160.dp)
-                    .clip(Shape.medium)
-                    .background(Color.LightGray)
-                    .clickable { imagePicker.launch("image/*") },
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
             ) {
-                if (selectedImageUri != null) {
-                    AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .clip(Shape.medium)
+                        .background(Color.LightGray)
+                        .clickable {},
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectedImageUri != null) {
+                        AsyncImage(
+                            model = selectedImageUri,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Put Your Photo here",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(70.dp)
+                            .weight(0.5f)
+                            .clip(Shape.medium)
+                            .background(Surface)
+                            .clickable {
+
+                                if (
+                                    ContextCompat.checkSelfPermission(
+                                        context,
+                                        android.Manifest.permission.CAMERA
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+
+                                    val helper = ImageStorageHelper(context)
+                                    val uri = helper.createCameraImageUri()
+
+                                    cameraImageUri.value = uri
+                                    cameraLauncher.launch(uri)
+
+                                } else {
+
+                                    pendingCamera = true
+                                    cameraPermissionLauncher.launch(
+                                        android.Manifest.permission.CAMERA
+                                    )
+
+                                }
+
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.AddAPhoto,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = Primary
                         )
-                        Text(
-                            "Add Place",
-                            style = MaterialTheme.typography.bodySmall,
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .width(70.dp)
+                            .weight(0.5f)
+                            .clip(Shape.medium)
+                            .background(Surface)
+                            .clickable {
+                                imagePicker.launch("image/*")
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.PhotoLibrary,
+                            contentDescription = null,
+                            tint = Primary
                         )
                     }
                 }
             }
+
             SheetTextField(
                 value = placeName,
                 onValueChange = {
@@ -211,7 +322,8 @@ fun AddPlaceSheet(
                     Icon(
                         imageVector = Icons.Outlined.Map,
                         contentDescription = null,
-                        Modifier.size(18.dp)
+                        Modifier
+                            .size(18.dp)
                             .padding(end = 4.dp)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
