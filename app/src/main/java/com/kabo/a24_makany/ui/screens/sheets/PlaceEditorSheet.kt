@@ -31,7 +31,6 @@ import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Park
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Restaurant
-import androidx.compose.material.icons.outlined.ShareLocation
 import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,12 +63,12 @@ import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Shape
 import com.kabo.a24_makany.ui.theme.Surface
 import com.kabo.a24_makany.utils.ImageStorageHelper
-import java.util.jar.Manifest
 
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun AddPlaceSheet(
+fun PlaceEditorSheet(
+    place: PlaceEntity? = null,
     latitude: Double?,
     longitude: Double?,
     address: String,
@@ -78,9 +77,23 @@ fun AddPlaceSheet(
 
     val categories = listOf("Home", "Work", "Food", "Cafe", "Park", "Other")
     var isNameError by remember { mutableStateOf(false) }
-    var placeName by remember { mutableStateOf("") }
-    var placeNotes by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Home") }
+
+    var placeName by remember(place) {
+        mutableStateOf(place?.name ?: "")
+    }
+
+    var placeNotes by remember(place) {
+        mutableStateOf(place?.notes ?: "")
+    }
+
+    var selectedCategory by remember(place) {
+        mutableStateOf(place?.category ?: "Home")
+    }
+
+    var currentImagePath by remember(place) {
+        mutableStateOf(place?.imageUri)
+    }
+
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -93,35 +106,30 @@ fun AddPlaceSheet(
         mutableStateOf<Uri?>(null)
     }
 
-    val cameraLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.TakePicture()
-        ) { success ->
-            if (success) {
-                selectedImageUri = cameraImageUri.value
-            }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            selectedImageUri = cameraImageUri.value
         }
+    }
     var pendingCamera by remember { mutableStateOf(false) }
 
-    val cameraPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { granted ->
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
 
-            if (granted && pendingCamera) {
-                pendingCamera = false
+        if (granted && pendingCamera) {
+            pendingCamera = false
 
-                val helper = ImageStorageHelper(context)
-                val uri = helper.createCameraImageUri()
+            val helper = ImageStorageHelper(context)
+            val uri = helper.createCameraImageUri()
 
-                cameraImageUri.value = uri
-                cameraLauncher.launch(uri)
-            }
+            cameraImageUri.value = uri
+            cameraLauncher.launch(uri)
         }
-
-    var showImagePickerDialog by remember {
-        mutableStateOf(false)
     }
+
     val vm: PlacesViewModel = viewModel()
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -131,7 +139,7 @@ fun AddPlaceSheet(
 
         ) {
             Text(
-                "Add Place",
+                if (place == null) "Add Place" else "Edit PLace",
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(modifier = Modifier.height(6.dp))
@@ -151,17 +159,29 @@ fun AddPlaceSheet(
                         .clickable {},
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selectedImageUri != null) {
-                        AsyncImage(
-                            model = selectedImageUri,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                    when {
+                        selectedImageUri != null -> {
+                            // الصورة الجديدة من الكاميرا أو الجاليري
+                            AsyncImage(
+                                model = selectedImageUri,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        currentImagePath != null -> {
+                            // الصورة القديمة من Room
+                            AsyncImage(
+                                model = currentImagePath,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        else -> {
+                            // Placeholder
                             Text(
                                 "Put Your Photo here",
                                 style = MaterialTheme.typography.bodySmall,
@@ -172,8 +192,7 @@ fun AddPlaceSheet(
                 Spacer(modifier = Modifier.width(6.dp))
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxHeight()
+                    modifier = Modifier.fillMaxHeight()
                 ) {
                     Box(
                         modifier = Modifier
@@ -183,10 +202,8 @@ fun AddPlaceSheet(
                             .background(Surface)
                             .clickable {
 
-                                if (
-                                    ContextCompat.checkSelfPermission(
-                                        context,
-                                        android.Manifest.permission.CAMERA
+                                if (ContextCompat.checkSelfPermission(
+                                        context, android.Manifest.permission.CAMERA
                                     ) == PackageManager.PERMISSION_GRANTED
                                 ) {
 
@@ -205,8 +222,7 @@ fun AddPlaceSheet(
 
                                 }
 
-                            },
-                        contentAlignment = Alignment.Center
+                            }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.AddAPhoto,
@@ -224,8 +240,7 @@ fun AddPlaceSheet(
                             .background(Surface)
                             .clickable {
                                 imagePicker.launch("image/*")
-                            },
-                        contentAlignment = Alignment.Center
+                            }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.PhotoLibrary,
@@ -316,8 +331,7 @@ fun AddPlaceSheet(
                     .background(Color(0xFFE5E5E5))
             ) {
                 Row(
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier.padding(12.dp)
+                    verticalAlignment = Alignment.Top, modifier = Modifier.padding(12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Map,
@@ -335,37 +349,66 @@ fun AddPlaceSheet(
                 modifier = Modifier.padding(vertical = 12.dp),
             ) {
                 SheetsButton(
-                    "Save Place",
+                    if (place == null) "Save Place" else "Update PLace",
                     Icons.Rounded.BookmarkBorder,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        if (placeName.isBlank()) {
-                            isNameError = true
-                            return@SheetsButton
-                        }
-                        // الكود سليم.. كمل حفظ المكان
-                        isNameError = false
-                        val imageHelper = ImageStorageHelper(context)
-                        val savedImagePath =
-                            selectedImageUri?.let {
+                        if (place == null) {
+                            if (placeName.isBlank()) {
+                                isNameError = true
+                                return@SheetsButton
+                            }
+                            // الكود سليم.. كمل حفظ المكان
+                            isNameError = false
+                            val imageHelper = ImageStorageHelper(context)
+                            val savedImagePath = selectedImageUri?.let {
                                 imageHelper.saveImage(it)
                             }
-                        val place = PlaceEntity(
-                            name = placeName.trim(),
-                            notes = placeNotes,
-                            category = selectedCategory,
-                            latitude = latitude,
-                            longitude = longitude,
-                            address = address,
-                            imageUri = savedImagePath
-                        )
-                        Toast.makeText(context, "place saved", Toast.LENGTH_SHORT).show()
-                        Log.d("PLACE", place.toString())
+                            val place = PlaceEntity(
+                                name = placeName.trim(),
+                                notes = placeNotes,
+                                category = selectedCategory,
+                                latitude = latitude,
+                                longitude = longitude,
+                                address = address,
+                                imageUri = savedImagePath
+                            )
+                            Toast.makeText(context, "Place saved", Toast.LENGTH_SHORT).show()
+                            vm.savePlace(place)
+                            onDismiss()
+                        } else {
 
-                        vm.savePlace(place)
-                        onDismiss()
-                    }
-                )
+                            if (placeName.isBlank()) {
+                                isNameError = true
+                                return@SheetsButton
+                            }
+
+                            isNameError = false
+
+                            val imageHelper = ImageStorageHelper(context)
+
+                            val savedImagePath =
+                                if (selectedImageUri != null) {
+                                    imageHelper.saveImage(selectedImageUri!!)
+                                } else {
+                                    currentImagePath
+                                }
+
+                            val updatedPlace = place.copy(
+                                name = placeName.trim(),
+                                notes = placeNotes,
+                                category = selectedCategory,
+                                imageUri = savedImagePath
+                            )
+
+                            Toast.makeText(context, "Place updated", Toast.LENGTH_SHORT).show()
+
+                            vm.savePlace(updatedPlace)
+
+                            onDismiss()
+                        }
+
+                    })
             }
 
         }

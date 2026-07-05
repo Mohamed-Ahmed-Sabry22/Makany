@@ -1,11 +1,9 @@
 package com.kabo.a24_makany
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -49,7 +47,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.model.LatLng
 import com.kabo.a24_makany.ui.navigation.NavGraph
 import com.kabo.a24_makany.ui.screens.SplashScreen
-import com.kabo.a24_makany.ui.screens.sheets.AddPlaceSheet
+import com.kabo.a24_makany.ui.screens.sheets.PlaceEditorSheet
 import com.kabo.a24_makany.ui.theme.Primary
 import com.kabo.a24_makany.ui.theme.Secondary
 import com.kabo.a24_makany.ui.theme.Shape
@@ -60,7 +58,6 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("SplashTest", "onCreate")
         enableEdgeToEdge()
         setContent {
             _24_MakanyTheme(
@@ -136,7 +133,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             if (showAddPlaceSheet) {
-                                AddPlaceSheet(
+                                PlaceEditorSheet(
                                     latitude = selectedLocation?.latitude,
                                     longitude = selectedLocation?.longitude,
                                     address = selectedAddress,

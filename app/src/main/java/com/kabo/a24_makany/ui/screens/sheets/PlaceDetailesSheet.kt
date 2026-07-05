@@ -61,7 +61,8 @@ fun PlaceDetailesSheet(
     onGoClick: () -> Unit,
     onShareClick: () -> Unit,
     onDismiss: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss
@@ -71,10 +72,10 @@ fun PlaceDetailesSheet(
         ) {
             //place name
 
-                Text(
-                    place.name,
-                    style = MaterialTheme.typography.titleLarge,
-                )
+            Text(
+                place.name,
+                style = MaterialTheme.typography.titleLarge,
+            )
             Spacer(modifier = Modifier.height(8.dp))
             //photo
             Row(
@@ -125,8 +126,8 @@ fun PlaceDetailesSheet(
                             .background(Surface)
                             .clickable {
                                 // TODO Edit
-                            },
-                        contentAlignment = Alignment.Center
+                                onEdit()
+                            }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
@@ -147,8 +148,7 @@ fun PlaceDetailesSheet(
                             .clickable {
                                 // TODO Delete
                                 onDelete()
-                            },
-                        contentAlignment = Alignment.Center
+                            }, contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.DeleteOutline,
@@ -161,8 +161,7 @@ fun PlaceDetailesSheet(
             //note + category
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Note",
-                style = MaterialTheme.typography.titleSmall
+                text = "Note", style = MaterialTheme.typography.titleSmall
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -179,8 +178,7 @@ fun PlaceDetailesSheet(
                         .weight(1f),
                 ) {
                     Text(
-                        text = place.notes,
-                        style = MaterialTheme.typography.bodyMedium
+                        text = place.notes, style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 Spacer(modifier = Modifier.width(6.dp))
@@ -206,14 +204,11 @@ fun PlaceDetailesSheet(
                                 "Cafe" -> Icons.Outlined.LocalCafe
                                 "Other" -> Icons.Outlined.AddHome
                                 else -> Icons.Outlined.Park
-                            },
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp)
+                            }, contentDescription = null, modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = place.category,
-                            style = MaterialTheme.typography.bodyMedium
+                            text = place.category, style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -233,8 +228,7 @@ fun PlaceDetailesSheet(
                     .background(Color(0xFFE5E5E5))
             ) {
                 Row(
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier.padding(12.dp)
+                    verticalAlignment = Alignment.Top, modifier = Modifier.padding(12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Map,
@@ -245,8 +239,7 @@ fun PlaceDetailesSheet(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        place.address,
-                        style = MaterialTheme.typography.bodyMedium
+                        place.address, style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -269,8 +262,7 @@ fun PlaceDetailesSheet(
                         .size(50.dp)
                         .clip(Shape.medium)
                         .background(Surface)
-                        .clickable { onShareClick() },
-                    contentAlignment = Alignment.Center
+                        .clickable { onShareClick() }, contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ShareLocation,

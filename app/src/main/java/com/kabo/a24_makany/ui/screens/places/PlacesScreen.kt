@@ -40,12 +40,14 @@ import com.kabo.a24_makany.ui.components.PlaceCard
 import com.kabo.a24_makany.ui.screens.sheets.PlaceDetailesSheet
 import androidx.core.net.toUri
 import com.google.android.libraries.places.api.model.kotlin.place
+import com.kabo.a24_makany.ui.screens.sheets.PlaceEditorSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlacesScreen() {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var showPlaceDetailesSheet by rememberSaveable { mutableStateOf(false) }
+    var showEditSheet  by rememberSaveable { mutableStateOf(false) }
     val vm: PlacesViewModel = viewModel()
     val uiState by vm.uiState.collectAsState()
     var selectedPlace by remember { mutableStateOf<PlaceEntity?>(null) }
@@ -121,7 +123,6 @@ fun PlacesScreen() {
         selectedPlace?.let { place ->
             PlaceDetailesSheet(
                 place = place, onGoClick = {
-                    Toast.makeText(context, "gone done", Toast.LENGTH_SHORT).show()
                     val uri = "google.navigation:q=${place.latitude},${place.longitude}".toUri()
 
                     val intent = Intent(Intent.ACTION_VIEW, uri).apply {
@@ -131,14 +132,13 @@ fun PlacesScreen() {
                         context.startActivity(intent)
                     }
                 }, onShareClick = {
-                    Toast.makeText(context, "place shared", Toast.LENGTH_SHORT).show()
                     val shareText = """
-📍 ${place.name}
+                    📍 ${place.name}
 
-${place.address}
+                     ${place.address}
 
-https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}
-""".trimIndent()
+                       https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}
+                        """.trimIndent()
 
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
@@ -156,11 +156,29 @@ https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longit
                     vm.deletePlace(selectedPlace!!)
                     showPlaceDetailesSheet = false
                     selectedPlace = null
+                },
+                onEdit = {
+                    showPlaceDetailesSheet = false
+                    showEditSheet = true
                 }
             )
 
         }
 
+    }
+    if (showEditSheet) {
+        selectedPlace?.let { place ->
+            PlaceEditorSheet(
+                place = place,
+                latitude = place.latitude,
+                longitude = place.longitude,
+                address = place.address,
+                onDismiss = {
+                    showEditSheet = false
+                }
+            )
+
+        }
     }
 }
 
