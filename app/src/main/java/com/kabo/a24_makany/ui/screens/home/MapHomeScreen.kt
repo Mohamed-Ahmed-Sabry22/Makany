@@ -1,6 +1,8 @@
 package com.kabo.a24_makany.ui.screens.home
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,17 +59,24 @@ import android.graphics.Paint
 import android.graphics.Path
 import androidx.compose.foundation.background
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.MarkerState
+import com.kabo.a24_makany.utils.LocationSettingsHandler
+import kotlinx.coroutines.launch
 
 @Composable
 fun MapHomeScreen(
     savePlaceRequested: Boolean,
     onReadyToOpenSheet: (LatLng, String) -> Unit
 ) {
-    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     // Launcher لطلب permission
     val context = LocalContext.current
@@ -77,6 +86,8 @@ fun MapHomeScreen(
     ) { isGranted ->
         hasLocationPermission = isGranted
     }
+    val scope = rememberCoroutineScope()
+
     // أول ما الشاشة تفتح → تحقق من permission
     LaunchedEffect(Unit) {
         hasLocationPermission = checkSelfPermission(
@@ -87,20 +98,60 @@ fun MapHomeScreen(
         if (!hasLocationPermission) {
             permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
-
     }
-
 
     val vm: MapHomeViewModel = viewModel()
     val userLocation by vm.userLocation.collectAsState()
     val currentAddress by vm.currentAddress.collectAsState()
 
+    val isFetchingLocation by vm.isFetchingLocation.collectAsState()
+
+    val locationSettingsLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                vm.fetchCurrentLocation()
+            } else {
+                // المستخدم رفض يشغل الـ GPS
+            }
+        }
+    val locationSettingsHandler = remember {
+        LocationSettingsHandler(context)
+    }
+
+    suspend fun checkLocationFlow() {
+        if (!hasLocationPermission) return
+        val request = locationSettingsHandler.checkLocationSettings()
+        if (request == null) {
+            vm.fetchCurrentLocation()
+        } else {
+            locationSettingsLauncher.launch(request)
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+
+                hasLocationPermission =
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     var isSavingPlace by remember { mutableStateOf(false) }
     // 1. LaunchedEffect دي وظيفتها "الطلب فقط" عند تغيير الـ permission
     LaunchedEffect(hasLocationPermission) {
-        if (hasLocationPermission) {
-            vm.fetchCurrentLocation()
-        }
+        checkLocationFlow()
     }
     // 2. LaunchedEffect تانية خالص مراقبة للـ userLocation ومسؤولة عن الـ Toast
     LaunchedEffect(userLocation) {
@@ -111,8 +162,7 @@ fun MapHomeScreen(
 
     LaunchedEffect(savePlaceRequested) {
         if (!savePlaceRequested) return@LaunchedEffect
-        // المرحلة الأولى
-        vm.fetchCurrentLocation()
+        checkLocationFlow()
 
     }
 
@@ -124,7 +174,7 @@ fun MapHomeScreen(
             userLocation!!,
             currentAddress
         )
-
+        isSavingPlace = false
     }
 
     val placesvm: PlacesViewModel = viewModel()
@@ -140,8 +190,13 @@ fun MapHomeScreen(
         )
         CurrentLocationCard(
             address = currentAddress,
+            hasLocationPermission = hasLocationPermission,
+            isFetchingLocation = isFetchingLocation,
+            userLocation = userLocation,
             onRefresh = {
-                vm.fetchCurrentLocation()
+                scope.launch {
+                    checkLocationFlow()
+                }
             }
         )
 
@@ -233,6 +288,9 @@ fun MakanyMap(
 @Composable
 fun CurrentLocationCard(
     address: String,
+    userLocation: LatLng?,
+    hasLocationPermission : Boolean,
+    isFetchingLocation : Boolean,
     onRefresh: () -> Unit
 ) {
 
@@ -267,8 +325,13 @@ fun CurrentLocationCard(
                 )
 
                 Text(
-                    if (address.isBlank()) "Getting location..."
-                    else address,
+                    when {
+                        !hasLocationPermission -> "Location permission denied"
+                        isFetchingLocation -> "Getting location..."
+                        address.isBlank() && userLocation == null -> "Please turn on your location"
+                        address.isBlank() -> "Getting address..."
+                        else -> address
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
                     color = Color.Black
@@ -287,6 +350,7 @@ fun CurrentLocationCard(
         }
     }
 }
+
 fun bitmapDescriptorFromColor(color: Color): BitmapDescriptor {
     val colorInt = color.toArgb()
 

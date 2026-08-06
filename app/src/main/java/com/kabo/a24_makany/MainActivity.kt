@@ -187,12 +187,6 @@ private fun TopBar() {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_outlined),
-                    contentDescription = "Makany Logo",
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     "Makany",
                     style = MaterialTheme.typography.titleLarge,

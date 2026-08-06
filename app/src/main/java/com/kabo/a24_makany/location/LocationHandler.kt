@@ -17,8 +17,12 @@ class LocationHandler(
 
     @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
     suspend fun fetchCurrentLocation(): LatLng? {
+        Log.d("LOCATION", "fetchCurrentLocation() called")
+
         val location = fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
             .await()
+
+        Log.d("LOCATION", "Result = $location")
         return location?.let {
             LatLng(it.latitude, it.longitude)
         }

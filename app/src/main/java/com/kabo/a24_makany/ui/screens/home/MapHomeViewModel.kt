@@ -17,14 +17,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MapHomeViewModel(application : Application) : AndroidViewModel(application) {
+class MapHomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val locationHandler = LocationHandler(getApplication())
 
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation = _userLocation.asStateFlow()
 
-
+    val isFetchingLocation = MutableStateFlow(false)
     private val geocoderHandler =
         GeocoderHandler(getApplication())
     private val _currentAddress = MutableStateFlow("")
@@ -33,13 +33,14 @@ class MapHomeViewModel(application : Application) : AndroidViewModel(application
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun fetchCurrentLocation() {
         viewModelScope.launch {
+            isFetchingLocation.value = true
             _userLocation.value =
                 locationHandler.fetchCurrentLocation()
+            isFetchingLocation.value = false
         }
     }
 
     fun fetchAddress(location: LatLng) {
-
         viewModelScope.launch {
 
             _currentAddress.value =

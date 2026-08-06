@@ -373,7 +373,6 @@ fun PlaceEditorSheet(
                                 address = address,
                                 imageUri = savedImagePath
                             )
-                            Toast.makeText(context, "Place saved", Toast.LENGTH_SHORT).show()
                             vm.savePlace(place)
                             onDismiss()
                         } else {
@@ -400,9 +399,6 @@ fun PlaceEditorSheet(
                                 category = selectedCategory,
                                 imageUri = savedImagePath
                             )
-
-                            Toast.makeText(context, "Place updated", Toast.LENGTH_SHORT).show()
-
                             vm.savePlace(updatedPlace)
 
                             onDismiss()

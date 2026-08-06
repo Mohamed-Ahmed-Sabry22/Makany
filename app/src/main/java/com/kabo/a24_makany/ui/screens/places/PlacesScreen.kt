@@ -75,16 +75,15 @@ fun PlacesScreen() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f), // بياخد باقي مساحة الشاشة تحت السيرش بار
-                contentAlignment = Alignment.Center // بيخلي العناصر في السنتر بالظبط
+                    .weight(1f),
+                contentAlignment = Alignment.Center
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // أيقونة توحي بالبحث أو الفضاء
                     Icon(
-                        imageVector = Icons.Default.SearchOff, // أو Icons.Default.Inbox
+                        imageVector = Icons.Default.SearchOff,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -103,7 +102,7 @@ fun PlacesScreen() {
             // LazyColumn
             LazyColumn(
                 contentPadding = PaddingValues(bottom = 24.dp),
-                modifier = Modifier.weight(1f) // عشان السكرول يظبط مع السيرش بار
+                modifier = Modifier.weight(1f)
             ) {
                 items(filteredPlaces) { place ->
                     PlaceCard(

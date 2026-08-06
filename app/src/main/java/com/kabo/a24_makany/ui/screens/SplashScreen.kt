@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.kabo.a24_makany.R
 import com.kabo.a24_makany.ui.theme.Background
 import com.kabo.a24_makany.ui.theme.Primary
+import com.kabo.a24_makany.ui.theme.Surface
 import com.kabo.a24_makany.ui.theme.onSecondary
 import kotlinx.coroutines.delay
 
@@ -30,8 +31,6 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     onFinished: () -> Unit
 ) {
-
-    Log.d("SplashTest", "Compose")
 
     var showText by remember { mutableStateOf(false) }
 
@@ -48,15 +47,14 @@ fun SplashScreen(
         Log.d("SplashTest", "Launched")
         delay(500)
         showText = true
-        delay(1800)
+        delay(1200)
         Log.d("SplashTest", "Finished")
         onFinished()
     }
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Background)
-            .padding(24.dp),
+            .background(Surface),
         contentAlignment = Alignment.Center
     ) {
 
@@ -66,36 +64,13 @@ fun SplashScreen(
         ) {
 
             Image(
-                painter = painterResource(R.drawable.icon_outlined),
+                painter = painterResource(R.drawable.brandlogo),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(100.dp)
+                    .padding(16.dp)
                     .scale(scale)
             )
 
-            Spacer(Modifier.height(24.dp))
-
-            AnimatedVisibility(
-                visible = showText,
-                enter = fadeIn() + slideInVertically { it / 3 }
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        "Makany",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Primary
-                    )
-                    Spacer(modifier = Modifier.height(18.dp))
-                    Text(
-                        "Every place has a memory.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = onSecondary
-                    )
-                }
-
-            }
         }
     }
 }
