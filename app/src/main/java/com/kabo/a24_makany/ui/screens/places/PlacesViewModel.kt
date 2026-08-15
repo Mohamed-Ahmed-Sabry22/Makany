@@ -2,6 +2,7 @@ package com.kabo.a24_makany.ui.screens.places
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kabo.a24_makany.data.local.PlaceEntity
 import com.kabo.a24_makany.data.local.PlacesDatabase
@@ -12,21 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PlacesViewModel(
-    application: Application
-) : AndroidViewModel(application){
-    //خاص ب Roooooom
     private val repo : PlacesRepository
-
-    //val places : Flow<List<PlaceEntity>>
-
+) : ViewModel(){
     private val _uiState = MutableStateFlow(PlacesUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
-        val dao = PlacesDatabase.getInstance(application).dao
-
-        repo = PlacesRepository(dao)
-
         viewModelScope.launch {
             repo.getAllPlaces().collect { places ->
 

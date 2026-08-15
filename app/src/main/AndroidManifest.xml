@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <application
+        android:name=".MakanyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -31,7 +32,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDXEUlLTI6k9BBwE-OmA-BAHmVEtzHnWKU" />
+            android:value="${MAPS_API_KEY}" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

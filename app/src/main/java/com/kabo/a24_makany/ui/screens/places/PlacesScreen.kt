@@ -40,15 +40,29 @@ import com.kabo.a24_makany.ui.components.PlaceCard
 import com.kabo.a24_makany.ui.screens.sheets.PlaceDetailesSheet
 import androidx.core.net.toUri
 import com.google.android.libraries.places.api.model.kotlin.place
+import com.kabo.a24_makany.data.local.PlacesDao
+import com.kabo.a24_makany.data.local.PlacesDatabase
+import com.kabo.a24_makany.data.repository.PlacesRepository
 import com.kabo.a24_makany.ui.screens.sheets.PlaceEditorSheet
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlacesScreen() {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var showPlaceDetailesSheet by rememberSaveable { mutableStateOf(false) }
-    var showEditSheet  by rememberSaveable { mutableStateOf(false) }
-    val vm: PlacesViewModel = viewModel()
+    var showEditSheet by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    /*
+      // هنا بقي حاولنا نطبق DI باستخدام factory design pattern "يدوي"
+      val dao = PlacesDatabase.getInstance(context).dao
+      val repo = PlacesRepository(dao)
+      val factory = PlacesViewModelFactory(repo)
+      val vm: PlacesViewModel = viewModel(factory = factory)
+     */
+    val vm: PlacesViewModel = koinViewModel()
+
+
     val uiState by vm.uiState.collectAsState()
     var selectedPlace by remember { mutableStateOf<PlaceEntity?>(null) }
     val filteredPlaces =
@@ -64,7 +78,8 @@ fun PlacesScreen() {
     ) {
         if (uiState.isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.width(64.dp)
+                modifier = Modifier
+                    .width(64.dp)
                     .padding(top = 100.dp),
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.secondary,
@@ -117,7 +132,6 @@ fun PlacesScreen() {
 
         }
     }
-    val context = LocalContext.current
     if (showPlaceDetailesSheet) {
         selectedPlace?.let { place ->
             PlaceDetailesSheet(

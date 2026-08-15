@@ -9,8 +9,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.kabo.a24_makany.ui.screens.SplashScreen
 import com.kabo.a24_makany.ui.screens.home.MapHomeScreen
 import com.kabo.a24_makany.ui.screens.places.PlacesScreen
-import com.kabo.a24_makany.ui.screens.auth.LoginScreen
-import com.kabo.a24_makany.ui.screens.auth.SignUpScreen
 
 @Composable
 fun NavGraph(
@@ -35,8 +33,6 @@ fun NavGraph(
                 }
             )
         }*/
-        composable("login") { LoginScreen() }
-        composable("signup") { SignUpScreen() }
         composable("home") {
             MapHomeScreen(
                 savePlaceRequested = savePlaceRequested,

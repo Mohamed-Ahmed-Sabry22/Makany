@@ -1,7 +1,13 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+}
+
+val localProps = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
 }
 
 android {
@@ -27,6 +33,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        manifestPlaceholders["MAPS_API_KEY"] =
+            localProps.getProperty("MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
@@ -79,5 +87,11 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation(platform("io.insert-koin:koin-bom:4.2.0"))
+
+    implementation("io.insert-koin:koin-android")
+    implementation("io.insert-koin:koin-compose")
+    implementation("io.insert-koin:koin-compose-viewmodel")
 
 }

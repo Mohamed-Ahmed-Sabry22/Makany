@@ -69,8 +69,14 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.MarkerState
+import com.kabo.a24_makany.data.local.PlacesDatabase
+import com.kabo.a24_makany.data.repository.PlacesRepository
+import com.kabo.a24_makany.location.GeocoderHandler
+import com.kabo.a24_makany.location.LocationHandler
+import com.kabo.a24_makany.ui.screens.places.PlacesViewModelFactory
 import com.kabo.a24_makany.utils.LocationSettingsHandler
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MapHomeScreen(
@@ -100,7 +106,16 @@ fun MapHomeScreen(
         }
     }
 
-    val vm: MapHomeViewModel = viewModel()
+    /*
+    // هنا بقي حاولنا نطبق DI باستخدام factory design pattern "يدوي"
+    val locationHandler = LocationHandler(context)
+    val geocoderHandler = GeocoderHandler(context)
+    val factory = MapHomeViewModelFactory(locationHandler , geocoderHandler)
+    val vm: MapHomeViewModel = viewModel(factory = factory)
+    */
+    val vm: MapHomeViewModel = koinViewModel()
+
+
     val userLocation by vm.userLocation.collectAsState()
     val currentAddress by vm.currentAddress.collectAsState()
 
@@ -177,8 +192,17 @@ fun MapHomeScreen(
         isSavingPlace = false
     }
 
-    val placesvm: PlacesViewModel = viewModel()
-    val uiState by placesvm.uiState.collectAsState()
+    /*
+    ده الجزء بتاع المانوال DI with factory
+    val dao = PlacesDatabase.getInstance(context).dao
+    val repo = PlacesRepository(dao)
+    val placesFactory = PlacesViewModelFactory(repo)
+    val placesVM: PlacesViewModel = viewModel(factory = placesFactory)
+    val uiState by placesVM.uiState.collectAsState()
+    */
+    val placesVM : PlacesViewModel = koinViewModel()
+    val uiState by placesVM.uiState.collectAsState()
+
 
     Box(modifier = Modifier.fillMaxSize()) {
 
