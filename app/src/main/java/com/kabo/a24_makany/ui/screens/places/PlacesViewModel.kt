@@ -7,21 +7,22 @@ import androidx.lifecycle.viewModelScope
 import com.kabo.a24_makany.data.local.PlaceEntity
 import com.kabo.a24_makany.data.local.PlacesDatabase
 import com.kabo.a24_makany.data.repository.PlacesRepository
+import com.kabo.a24_makany.usecase.IsPlaceNameTakenUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PlacesViewModel(
-    private val repo : PlacesRepository
-) : ViewModel(){
+    private val repo: PlacesRepository,
+    private val isPlaceNameTakenUseCase: IsPlaceNameTakenUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(PlacesUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             repo.getAllPlaces().collect { places ->
-
                 _uiState.value = PlacesUiState(
                     isLoading = false,
                     places = places
@@ -30,9 +31,14 @@ class PlacesViewModel(
             }
         }
     }
+
     fun savePlace(place: PlaceEntity) {
         viewModelScope.launch {
-            repo.upsert(place)
+            if (isPlaceNameTakenUseCase(place.name)) {
+                    // lesa
+            } else {
+                repo.upsert(place)
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-package com.kabo.a24_makany.location
+package com.kabo.a24_makany.data.location
 
 import android.content.Context
 import android.location.Geocoder

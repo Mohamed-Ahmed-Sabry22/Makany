@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -54,8 +52,6 @@ import com.kabo.a24_makany.ui.screens.places.PlacesViewModel
 import com.kabo.a24_makany.ui.theme.Secondary
 import kotlinx.coroutines.delay
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Path
 import androidx.compose.foundation.background
 import androidx.compose.material3.CircularProgressIndicator
@@ -69,11 +65,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.MarkerState
-import com.kabo.a24_makany.data.local.PlacesDatabase
-import com.kabo.a24_makany.data.repository.PlacesRepository
-import com.kabo.a24_makany.location.GeocoderHandler
-import com.kabo.a24_makany.location.LocationHandler
-import com.kabo.a24_makany.ui.screens.places.PlacesViewModelFactory
+import com.kabo.a24_makany.ui.components.CurrentLocationCard
+import com.kabo.a24_makany.ui.components.MakanyMap
 import com.kabo.a24_makany.utils.LocationSettingsHandler
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -225,178 +218,4 @@ fun MapHomeScreen(
         )
 
     }
-}
-
-
-@SuppressLint("UnrememberedMutableState")
-@Composable
-fun MakanyMap(
-    modifier: Modifier = Modifier,
-    userLocation: LatLng?,
-    isSavingPlace: Boolean,
-    places: List<PlaceEntity>
-) {
-    var isMapLoaded by remember { mutableStateOf(false) }
-    val defaultLocation = LatLng(30.0444, 31.2357)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(defaultLocation, 15f)
-    }
-    LaunchedEffect(userLocation, isSavingPlace) {
-        userLocation?.let {
-            cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngZoom(
-                    it,
-                    if (isSavingPlace) 18f else 17f
-                ),
-                durationMs = 800
-            )
-
-        }
-    }
-    val context = LocalContext.current
-    GoogleMap(
-        modifier = modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState,
-        properties = MapProperties(
-            mapType = MapType.NORMAL,
-            mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
-                context,
-                R.raw.map_style
-            )
-        ),
-        onMapLoaded = {
-            isMapLoaded = true
-        }
-    ) {
-        userLocation?.let {
-            Marker(
-                state = rememberMarkerState(position = userLocation),
-                title = "You are here",
-                icon = bitmapDescriptorFromColor(
-                    if (isSavingPlace) Color(0xFF2D6A4F)// Primary
-                    else Color(0xFFFF9800) // Accent
-                )
-            )
-        }
-        places.forEach { place ->
-            val lat = place.latitude ?: return@forEach
-            val lng = place.longitude ?: return@forEach
-
-            Marker(
-                state = MarkerState(LatLng(lat, lng)),
-                title = place.name,
-                icon = bitmapDescriptorFromColor(Color(0xFF2D6A4F)), // Primary
-                snippet = place.category
-
-            )
-        }
-
-
-    }
-    if (!isMapLoaded) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.width(64.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.secondary,
-            )
-        }
-    }
-}
-
-@Composable
-fun CurrentLocationCard(
-    address: String,
-    userLocation: LatLng?,
-    hasLocationPermission : Boolean,
-    isFetchingLocation : Boolean,
-    onRefresh: () -> Unit
-) {
-
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        colors = CardDefaults.elevatedCardColors(Secondary)
-    ) {
-
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(
-                imageVector = Icons.Outlined.MyLocation,
-                contentDescription = null,
-                tint = Color.Black
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-
-                Text(
-                    "Current Location",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Black
-                )
-
-                Text(
-                    when {
-                        !hasLocationPermission -> "Location permission denied"
-                        isFetchingLocation -> "Getting location..."
-                        address.isBlank() && userLocation == null -> "Please turn on your location"
-                        address.isBlank() -> "Getting address..."
-                        else -> address
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    color = Color.Black
-                )
-            }
-
-            IconButton(
-                onClick = onRefresh
-            ) {
-                Icon(
-                    Icons.Outlined.Refresh,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
-        }
-    }
-}
-
-fun bitmapDescriptorFromColor(color: Color): BitmapDescriptor {
-    val colorInt = color.toArgb()
-
-    val paint = android.graphics.Paint().apply {
-        this.color = colorInt
-        isAntiAlias = true
-    }
-
-    val bitmap = Bitmap.createBitmap(90, 120, Bitmap.Config.ARGB_8888)
-    val canvas = android.graphics.Canvas(bitmap)
-
-// الدائرة أكبر
-    canvas.drawCircle(30f, 30f, 30f, paint)
-
-// الذيل أكبر
-    val path = Path().apply {
-        moveTo(18f, 52f)
-        lineTo(42f, 52f)
-        lineTo(30f, 82f)
-        close()
-    }
-    canvas.drawPath(path, paint)
-
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
